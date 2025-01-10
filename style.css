@@ -127,7 +127,6 @@ h2 {
     border: 1px solid var(--border-color);
     margin-bottom: 8px;
     border-radius: 6px;
-    cursor: grab;
     flex-wrap: wrap;
 }
 
@@ -152,14 +151,7 @@ h2 {
 }
 
 .drag-handle {
-    color: var(--drag-handle-color);
-    margin-right: 8px;
-    cursor: grab;
-    padding: 4px;
-}
-
-.drag-handle:active {
-    cursor: grabbing;
+    display: none;
 }
 
 .task-item:hover {
@@ -194,6 +186,29 @@ h2 {
     margin: 0 12px;
     color: var(--text-color);
     transition: color 0.3s;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.task-text:not(.completed):hover {
+    background-color: var(--border-color);
+}
+
+.task-input {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    width: 100%;
+    font-size: inherit;
+    font-family: inherit;
+}
+
+.task-input:focus {
+    outline: none;
+    border-color: var(--button-color);
 }
 
 .completed {
@@ -292,4 +307,60 @@ h2 {
 
 .task-item.subtask .drag-handle {
     display: none;
+}
+
+.timer-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 12px;
+}
+
+.timer-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 5px 8px;
+    font-size: 1rem;
+    opacity: 0.6;
+    transition: opacity 0.2s, color 0.2s;
+}
+
+.timer-btn:hover {
+    opacity: 1;
+}
+
+.timer-btn.active {
+    color: var(--button-color);
+    opacity: 1;
+}
+
+.timer-display {
+    font-family: monospace;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.timer-display:hover {
+    background-color: var(--border-color);
+}
+
+.timer-input {
+    font-family: monospace;
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    width: 80px;
+    font-size: inherit;
+}
+
+.timer-input:focus {
+    outline: none;
+    border-color: var(--button-color);
 } 

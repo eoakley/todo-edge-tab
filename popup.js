@@ -69,16 +69,13 @@ document.addEventListener('DOMContentLoaded', function() {
             .addClass('task-item');
             
         if (!isSubtask) {
-            li.attr('draggable', true);
+            li.attr('draggable', false);
         }
 
         if (isSubtask) {
             li.addClass('subtask');
         }
 
-        const dragHandle = $('<i>')
-            .addClass('fas fa-grip-vertical drag-handle');
-            
         const checkbox = $('<input>')
             .attr('type', 'checkbox')
             .addClass('task-checkbox')
@@ -96,7 +93,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     // Disparar confete apenas quando completar (não quando desmarcar)
                     if (isCompleted) {
-                        showCompletionAnimation(e);
+                        const timeSpent = parseInt(li.data('timeSpent') || 0);
+                        showCompletionAnimation(e, timeSpent);
                     }
                 }
 
@@ -105,12 +103,99 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const textSpan = $('<span>')
             .addClass('task-text')
-            .text(taskText);
+            .text(taskText)
+            .click(function(e) {
+                // Não permitir edição se a tarefa estiver completa
+                if ($(this).hasClass('completed')) return;
+                
+                const currentText = $(this).text();
+                const input = $('<input>')
+                    .attr('type', 'text')
+                    .addClass('task-input')
+                    .val(currentText)
+                    .blur(function() {
+                        const newText = $(this).val().trim();
+                        if (newText && newText !== currentText) {
+                            $(this).parent().text(newText);
+                            saveTasks();
+                        } else {
+                            $(this).parent().text(currentText);
+                        }
+                    })
+                    .keypress(function(e) {
+                        if (e.which === 13) {
+                            $(this).blur();
+                        }
+                    });
+                $(this).html(input);
+                input.focus();
+            });
+
+        const timerContainer = $('<div>')
+            .addClass('timer-container')
+            .append(
+                $('<button>')
+                    .addClass('timer-btn play-btn')
+                    .html('<i class="fas fa-play"></i>')
+                    .click(function() {
+                        const btn = $(this);
+                        const isPaused = !btn.hasClass('active');
+                        btn.toggleClass('active');
+                        const pauseBtn = btn.siblings('.pause-btn');
+                        pauseBtn.toggleClass('active');
+                        
+                        if (isPaused) {
+                            startTimer(li);
+                        } else {
+                            pauseTimer(li);
+                        }
+                    }),
+                $('<button>')
+                    .addClass('timer-btn pause-btn')
+                    .html('<i class="fas fa-pause"></i>')
+                    .click(function() {
+                        const btn = $(this);
+                        const playBtn = btn.siblings('.play-btn');
+                        btn.toggleClass('active');
+                        playBtn.toggleClass('active');
+                        pauseTimer(li);
+                    }),
+                $('<span>')
+                    .addClass('timer-display')
+                    .text('00:00:00')
+                    .click(function() {
+                        const currentDisplay = $(this).text();
+                        const input = $('<input>')
+                            .attr('type', 'text')
+                            .addClass('timer-input')
+                            .val(currentDisplay)
+                            .blur(function() {
+                                const newTime = $(this).val();
+                                if (/^\d{2}:\d{2}:\d{2}$/.test(newTime)) {
+                                    const [hours, minutes, seconds] = newTime.split(':').map(Number);
+                                    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                                    li.data('timeSpent', totalSeconds);
+                                    $(this).parent().html(newTime);
+                                    saveTasks();
+                                } else {
+                                    $(this).parent().html(currentDisplay);
+                                }
+                            })
+                            .keypress(function(e) {
+                                if (e.which === 13) {
+                                    $(this).blur();
+                                }
+                            });
+                        $(this).html(input);
+                        input.focus();
+                    })
+            );
 
         const deleteBtn = $('<button>')
             .addClass('delete-btn')
             .html('<i class="fas fa-trash"></i>')
-            .click(function() {
+            .click(function(e) {
+                showDeletionAnimation(e);
                 li.fadeOut(300, function() {
                     li.remove();
                     saveTasks();
@@ -128,42 +213,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
 
             // Criar container de subtarefas
-            const subtasksContainer = $('<div>')
-                .addClass('subtasks-container')
-                .append(
-                    $('<div>').addClass('input-container')
-                        .append(
-                            $('<input>')
-                                .attr('type', 'text')
-                                .attr('placeholder', 'Digite uma subtarefa...')
-                                .addClass('subtask-input')
-                                .keypress(function(e) {
-                                    if (e.which == 13) {
-                                        addSubtask($(this));
-                                    }
-                                })
-                        )
-                        .append(
-                            $('<button>')
-                                .text('Adicionar')
-                                .click(function() {
-                                    addSubtask($(this).prev());
-                                })
-                        )
-                )
-                .append($('<ul>').addClass('subtask-list'));
+            const subtasksContainer = $('<div>').addClass('subtasks-container');
+            
+            // Criar container de input
+            const inputContainer = $('<div>').addClass('input-container');
+            const subtaskInput = $('<input>')
+                .attr('type', 'text')
+                .attr('placeholder', 'Digite uma subtarefa...')
+                .addClass('subtask-input')
+                .keypress(function(e) {
+                    if (e.which == 13) {
+                        addSubtask($(this));
+                    }
+                });
+            const addButton = $('<button>')
+                .text('Adicionar')
+                .click(function() {
+                    addSubtask($(this).prev());
+                });
+            
+            inputContainer.append(subtaskInput, addButton);
+            
+            // Criar lista de subtarefas
+            const subtaskList = $('<ul>').addClass('subtask-list');
+            
+            // Montar a estrutura completa
+            subtasksContainer.append(inputContainer, subtaskList);
 
-            li.append(dragHandle, expandBtn, checkbox, textSpan, deleteBtn, subtasksContainer);
-
-            // Adicionar eventos de drag and drop apenas para tarefas principais
-            li[0].addEventListener('dragstart', handleDragStart);
-            li[0].addEventListener('dragend', handleDragEnd);
-            li[0].addEventListener('dragover', handleDragOver);
-            li[0].addEventListener('drop', handleDrop);
-            li[0].addEventListener('dragenter', handleDragEnter);
-            li[0].addEventListener('dragleave', handleDragLeave);
+            li.append(checkbox, expandBtn, textSpan, timerContainer, deleteBtn, subtasksContainer);
         } else {
-            li.append(dragHandle, checkbox, textSpan, deleteBtn);
+            li.append(checkbox, textSpan, deleteBtn);
         }
 
         return li;
@@ -251,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const task = {
                 text: $(this).find('> .task-text').text(),
                 completed: $(this).find('> .task-text').hasClass('completed'),
+                timeSpent: $(this).data('timeSpent') || 0,
                 subtasks: []
             };
 
@@ -275,6 +355,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (task.completed) {
                 taskItem.find('> .task-checkbox').prop('checked', true);
                 taskItem.find('> .task-text').addClass('completed');
+            }
+            
+            if (task.timeSpent) {
+                taskItem.data('timeSpent', task.timeSpent);
+                const hours = Math.floor(task.timeSpent / 3600);
+                const minutes = Math.floor((task.timeSpent % 3600) / 60);
+                const seconds = task.timeSpent % 60;
+                const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                taskItem.find('.timer-display').text(display);
             }
 
             // Carregar subtarefas
@@ -303,26 +392,101 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Função para mostrar a animação de confete
-    function showCompletionAnimation(e) {
+    function showCompletionAnimation(e, timeSpent = 0) {
         const colors = ["#4CAF50", "#45a049", "#66bb6a", "#81c784"];
         
         const bounds = e.target.getBoundingClientRect();
-        const x = bounds.left;
-        const y = bounds.top;
+        const x = (bounds.right) / window.innerWidth;
+        const y = bounds.top / window.innerHeight;
+
+        // Base confetti amount for tasks under 2 minutes
+        let particleCount = 75;
+        let spread = 80;
+        
+        // Scale confetti based on time spent
+        if (timeSpent > 0) {
+            const minutes = timeSpent / 60;
+            if (minutes > 300) { // 5 hours+
+                particleCount = 750; // 10x
+                spread = 160;
+            } else if (minutes > 180) { // 3 hours+
+                particleCount = 600; // 8x
+                spread = 140;
+            } else if (minutes > 60) { // 1 hour+
+                particleCount = 450; // 6x
+                spread = 120;
+            } else if (minutes > 30) { // 30 minutes+
+                particleCount = 300; // 4x
+                spread = 100;
+            } else if (minutes > 10) { // 10 minutes+
+                particleCount = 150; // 2x
+                spread = 90;
+            }
+        }
 
         confetti({
-            particleCount: 100,
-            spread: 70,
-            origin: { 
-                x: x / window.innerWidth, 
-                y: y / window.innerHeight 
-            },
+            particleCount: particleCount,
+            spread: spread,
+            origin: { x, y },
             colors: colors,
-            ticks: 200,
-            gravity: 1.5,
-            scalar: 1.2,
+            ticks: 400,
+            gravity: 0.8,
+            scalar: 1.5,
             shapes: ["circle", "square"],
             zIndex: 9999
         });
+    }
+
+    // Função para mostrar a animação de partículas na deleção
+    function showDeletionAnimation(e) {
+        const colors = ["#ff4444", "#cc0000", "#d32f2f", "#b71c1c"];
+        
+        const bounds = e.target.closest('.task-item').getBoundingClientRect();
+        const x = (bounds.right) / window.innerWidth;
+        const y = bounds.top / window.innerHeight;
+
+        confetti({
+            particleCount: 100,
+            spread: 90,
+            origin: { x, y },
+            colors: colors,
+            ticks: 300,
+            gravity: 1,
+            scalar: 1.4,
+            shapes: ["circle"],
+            zIndex: 9999
+        });
+    }
+
+    function startTimer(taskElement) {
+        if (taskElement.data('timerInterval')) {
+            clearInterval(taskElement.data('timerInterval'));
+        }
+
+        const startTime = Date.now() - (taskElement.data('timeSpent') || 0) * 1000;
+        
+        const interval = setInterval(() => {
+            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+            taskElement.data('timeSpent', elapsedSeconds);
+            
+            const hours = Math.floor(elapsedSeconds / 3600);
+            const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+            const seconds = elapsedSeconds % 60;
+            
+            const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            taskElement.find('.timer-display').text(display);
+            
+            saveTasks();
+        }, 1000);
+
+        taskElement.data('timerInterval', interval);
+    }
+
+    function pauseTimer(taskElement) {
+        const interval = taskElement.data('timerInterval');
+        if (interval) {
+            clearInterval(interval);
+            taskElement.data('timerInterval', null);
+        }
     }
 }); 

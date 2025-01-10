@@ -128,6 +128,7 @@ h2 {
     margin-bottom: 8px;
     border-radius: 6px;
     flex-wrap: wrap;
+    transition: background-color 0.3s;
 }
 
 .task-item:active {
@@ -155,7 +156,6 @@ h2 {
 }
 
 .task-item:hover {
-    transform: translateX(5px);
     border-color: var(--button-color);
 }
 
@@ -232,7 +232,7 @@ h2 {
 
 .subtasks-container {
     width: 100%;
-    margin-left: 40px;
+    margin-left: 30px;
     margin-top: 10px;
     display: none;
 }
@@ -393,4 +393,14 @@ h2 {
 
 .add-subtask-placeholder i {
     font-size: 0.9em;
+}
+
+@keyframes pulseBackground {
+    0% { background-color: var(--container-bg); }
+    50% { background-color: rgba(76, 175, 80, 0.1); }
+    100% { background-color: var(--container-bg); }
+}
+
+.task-item.timer-active {
+    animation: pulseBackground 3s ease-in-out infinite;
 } 

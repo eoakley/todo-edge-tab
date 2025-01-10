@@ -91,10 +91,15 @@ document.addEventListener('DOMContentLoaded', function() {
                         $(this).closest('.task-item').find('.task-text').toggleClass('completed', isCompleted);
                     });
 
-                    // Disparar confete apenas quando completar (não quando desmarcar)
+                    // Pausar o timer se estiver ativo
                     if (isCompleted) {
-                        const timeSpent = parseInt(li.data('timeSpent') || 0);
-                        showCompletionAnimation(e, timeSpent);
+                        const timerBtn = li.find('.timer-btn.toggle-timer');
+                        if (timerBtn.hasClass('active')) {
+                            timerBtn.removeClass('active')
+                                .html('<i class="fas fa-play"></i>');
+                            pauseTimer(li);
+                        }
+                        showCompletionAnimation(e, parseInt(li.data('timeSpent') || 0));
                     }
                 }
 
@@ -163,6 +168,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     .addClass('timer-display')
                     .text('00:00:00')
                     .click(function() {
+                        // Pausar o timer se estiver rodando
+                        const timerBtn = $(this).closest('.timer-container').find('.timer-btn');
+                        if (timerBtn.hasClass('active')) {
+                            timerBtn.removeClass('active')
+                                .html('<i class="fas fa-play"></i>');
+                            pauseTimer($(this).closest('.task-item'));
+                        }
+
                         const currentDisplay = $(this).text();
                         const input = $('<input>')
                             .attr('type', 'text')
@@ -259,23 +272,30 @@ document.addEventListener('DOMContentLoaded', function() {
                         .keypress(function(e) {
                             if (e.which == 13) {
                                 addSubtask($(this));
-                                // Restaurar placeholder e remover input
-                                addSubtaskPlaceholder.show();
-                                inputContainer.remove();
+                                // Manter o input e focar nele
+                                $(this).val('').focus();
                             }
                         });
                     const addButton = $('<button>')
                         .text('Adicionar')
                         .click(function() {
                             addSubtask(subtaskInput);
-                            // Restaurar placeholder e remover input
-                            addSubtaskPlaceholder.show();
-                            inputContainer.remove();
+                            // Manter o input e focar nele
+                            subtaskInput.val('').focus();
                         });
                     
                     inputContainer.append(subtaskInput, addButton);
                     subtasksContainer.append(inputContainer);
                     subtaskInput.focus();
+
+                    // Adicionar handler para clicar fora
+                    $(document).on('mousedown', function handleClickOutside(e) {
+                        if (!inputContainer.is(e.target) && inputContainer.has(e.target).length === 0) {
+                            $(document).off('mousedown', handleClickOutside);
+                            addSubtaskPlaceholder.show();
+                            inputContainer.remove();
+                        }
+                    });
                 });
             
             // Montar a estrutura completa
@@ -505,6 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const startTime = Date.now() - (taskElement.data('timeSpent') || 0) * 1000;
+        taskElement.addClass('timer-active');
         
         const interval = setInterval(() => {
             const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
@@ -528,6 +549,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (interval) {
             clearInterval(interval);
             taskElement.data('timerInterval', null);
+            taskElement.removeClass('timer-active');
         }
     }
 }); 

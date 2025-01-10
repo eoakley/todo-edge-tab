@@ -128,6 +128,7 @@ h2 {
     margin-bottom: 8px;
     border-radius: 6px;
     cursor: grab;
+    flex-wrap: wrap;
 }
 
 .task-item:active {
@@ -198,4 +199,97 @@ h2 {
 .completed {
     text-decoration: line-through;
     color: var(--completed-color);
+}
+
+.expand-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 5px 8px;
+    font-size: 1.1rem;
+    transition: transform 0.3s;
+}
+
+.expand-btn.expanded {
+    transform: rotate(90deg);
+}
+
+.subtasks-container {
+    width: 100%;
+    margin-left: 40px;
+    margin-top: 10px;
+    display: none;
+}
+
+.subtasks-container.expanded {
+    display: block;
+}
+
+.subtasks-container .input-container {
+    background-color: rgba(0, 0, 0, 0.02);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .subtasks-container .input-container {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.subtask-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    transition: border-color 0.3s;
+}
+
+.subtask-input:focus {
+    outline: none;
+    border-color: var(--button-color);
+}
+
+.subtasks-container .input-container button {
+    padding: 8px 16px;
+    background-color: var(--button-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.subtasks-container .input-container button:hover {
+    background-color: var(--hover-color);
+}
+
+.subtask-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-item.subtask {
+    margin-left: 20px;
+    background-color: rgba(0, 0, 0, 0.03);
+    cursor: default;
+    transform: none;
+}
+
+.task-item.subtask:hover {
+    transform: none;
+}
+
+[data-theme="dark"] .task-item.subtask {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.task-item.subtask .drag-handle {
+    display: none;
 } 

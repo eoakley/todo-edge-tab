@@ -123,12 +123,16 @@ h2 {
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    background-color: var(--container-bg);
+    background-color: rgba(0, 0, 0, 0.02);
     border: 1px solid var(--border-color);
     margin-bottom: 8px;
     border-radius: 6px;
     flex-wrap: wrap;
     transition: background-color 0.3s;
+}
+
+[data-theme="dark"] .task-item {
+    background-color: rgba(255, 255, 255, 0.02);
 }
 
 .task-item:active {
@@ -246,6 +250,7 @@ h2 {
     padding: 10px;
     border-radius: 6px;
     margin-bottom: 15px;
+    margin-left: 20px;
     border: 1px solid var(--border-color);
 }
 
@@ -384,6 +389,7 @@ h2 {
     border-radius: 4px;
     transition: all 0.2s;
     margin-top: 8px;
+    margin-left: 20px;
 }
 
 .add-subtask-placeholder:hover {
@@ -395,12 +401,33 @@ h2 {
     font-size: 0.9em;
 }
 
-@keyframes pulseBackground {
-    0% { background-color: var(--container-bg); }
-    50% { background-color: rgba(76, 175, 80, 0.1); }
-    100% { background-color: var(--container-bg); }
+@keyframes shineEffect {
+    0% {
+        background: linear-gradient(
+            45deg,
+            var(--container-bg) 0%,
+            var(--container-bg) 45%,
+            rgba(255, 255, 255, 0.08) 50%,
+            var(--container-bg) 55%,
+            var(--container-bg) 100%
+        );
+        background-size: 200% 100%;
+        background-position: -200% 0;
+    }
+    100% {
+        background: linear-gradient(
+            45deg,
+            var(--container-bg) 0%,
+            var(--container-bg) 45%,
+            rgba(255, 255, 255, 0.08) 50%,
+            var(--container-bg) 55%,
+            var(--container-bg) 100%
+        );
+        background-size: 200% 100%;
+        background-position: 200% 0;
+    }
 }
 
 .task-item.timer-active {
-    animation: pulseBackground 3s ease-in-out infinite;
+    animation: shineEffect 3s linear infinite;
 } 

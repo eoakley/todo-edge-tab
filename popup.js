@@ -66,12 +66,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function createTaskElement(taskText, isSubtask = false) {
         const li = $('<li>')
-            .addClass('task-item');
+            .addClass('task-item')
+            .attr('draggable', true)
+            .on('dragstart', handleDragStart)
+            .on('dragend', handleDragEnd)
+            .on('dragover', handleDragOver)
+            .on('dragenter', handleDragEnter)
+            .on('dragleave', handleDragLeave)
+            .on('drop', handleDrop);
             
-        if (!isSubtask) {
-            li.attr('draggable', false);
-        }
-
         if (isSubtask) {
             li.addClass('subtask');
         }
@@ -232,7 +235,10 @@ document.addEventListener('DOMContentLoaded', function() {
             .addClass('delete-btn')
             .html('<i class="fas fa-trash"></i>')
             .click(function(e) {
-                showDeletionAnimation(e);
+                // Só mostra animação se não for subtarefa
+                if (!$(this).closest('.task-item').hasClass('subtask')) {
+                    showDeletionAnimation(e);
+                }
                 li.fadeOut(300, function() {
                     li.remove();
                     saveTasks();
@@ -253,7 +259,39 @@ document.addEventListener('DOMContentLoaded', function() {
             const subtasksContainer = $('<div>').addClass('subtasks-container');
             
             // Criar lista de subtarefas
-            const subtaskList = $('<ul>').addClass('subtask-list');
+            const subtaskList = $('<ul>')
+                .addClass('subtask-list')
+                .on('dragover', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if ($(draggedItem).hasClass('subtask')) {
+                        e.dataTransfer.dropEffect = 'move';
+                        
+                        // Se não houver subtarefas, mostrar indicador no container
+                        if ($(this).children('.subtask').length === 0) {
+                            $('.drop-indicator').remove();
+                            const newIndicator = dropIndicator.clone();
+                            $(this).append(newIndicator);
+                            newIndicator.addClass('active');
+                        }
+                    }
+                })
+                .on('drop', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    if ($(draggedItem).hasClass('subtask') && 
+                        $(this).closest('.subtasks-container').is($(draggedItem).closest('.subtasks-container'))) {
+                        // Se não houver subtarefas, adicionar ao final da lista
+                        if ($(this).children('.subtask').length === 0) {
+                            $(this).append(draggedItem);
+                            saveTasks();
+                        }
+                    }
+                    
+                    $('.drop-indicator').remove();
+                });
             
             // Criar placeholder para adicionar nova subtarefa
             const addSubtaskPlaceholder = $('<div>')
@@ -324,15 +362,13 @@ document.addEventListener('DOMContentLoaded', function() {
     let dropIndicator = $('<div>').addClass('drop-indicator');
 
     function handleDragStart(e) {
-        // Não permitir arrastar se for uma subtarefa
-        if ($(this).hasClass('subtask')) {
-            e.preventDefault();
-            return;
-        }
-        
+        e.stopPropagation(); // Prevent event from bubbling up
         draggedItem = this;
         this.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
+        
+        // Armazenar informação se é uma subtarefa
+        draggedItem.isSubtask = $(this).hasClass('subtask');
         
         $('.drop-indicator').remove();
     }
@@ -345,15 +381,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleDragOver(e) {
-        if (e.preventDefault) {
-            e.preventDefault();
+        e.preventDefault();
+        e.stopPropagation(); // Prevent event from bubbling up
+        
+        const isSubtask = $(this).hasClass('subtask');
+        const draggedIsSubtask = $(draggedItem).hasClass('subtask');
+        
+        // Permitir drop apenas se:
+        // 1. Ambos são tarefas principais, ou
+        // 2. Ambos são subtarefas do mesmo pai
+        if (!isSubtask && !draggedIsSubtask) {
+            e.dataTransfer.dropEffect = 'move';
+        } else if (isSubtask && draggedIsSubtask) {
+            const currentParent = $(this).closest('.subtasks-container');
+            const draggedParent = $(draggedItem).closest('.subtasks-container');
+            if (currentParent.is(draggedParent)) {
+                e.dataTransfer.dropEffect = 'move';
+            }
         }
-        e.dataTransfer.dropEffect = 'move';
-        return false;
     }
 
     function handleDragEnter(e) {
-        if (this !== draggedItem) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent event from bubbling up
+        
+        if (this === draggedItem) return;
+        
+        const isSubtask = $(this).hasClass('subtask');
+        const draggedIsSubtask = $(draggedItem).hasClass('subtask');
+        
+        // Verificar se o drop é permitido
+        if ((!isSubtask && !draggedIsSubtask) || 
+            (isSubtask && draggedIsSubtask && 
+             $(this).closest('.subtasks-container').is($(draggedItem).closest('.subtasks-container')))) {
+            
             // Remover qualquer indicador existente
             $('.drop-indicator').remove();
             
@@ -365,6 +426,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleDragLeave(e) {
+        e.stopPropagation(); // Prevent event from bubbling up
         const relatedTarget = e.relatedTarget;
         if (!relatedTarget || !this.contains(relatedTarget)) {
             // Remover o indicador apenas se o mouse sair completamente do item
@@ -373,12 +435,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function handleDrop(e) {
-        e.stopPropagation();
         e.preventDefault();
+        e.stopPropagation(); // Prevent event from bubbling up
 
-        if (draggedItem !== this && !$(this).hasClass('subtask')) {
-            this.parentNode.insertBefore(draggedItem, this);
-            saveTasks();
+        const isSubtask = $(this).hasClass('subtask');
+        const draggedIsSubtask = $(draggedItem).hasClass('subtask');
+
+        // Verificar se o drop é permitido
+        if ((!isSubtask && !draggedIsSubtask) || 
+            (isSubtask && draggedIsSubtask && 
+             $(this).closest('.subtasks-container').is($(draggedItem).closest('.subtasks-container')))) {
+            
+            if (draggedItem !== this) {
+                this.parentNode.insertBefore(draggedItem, this);
+                saveTasks();
+            }
         }
 
         $('.drop-indicator').remove();

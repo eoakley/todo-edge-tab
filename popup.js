@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
         tasks.forEach(task => {
             if (task.trim()) {
                 const taskItem = createTaskElement(task.trim());
-                $('#taskList').append(taskItem);
+                $('#taskList').prepend(taskItem);
             }
         });
         
@@ -53,8 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // Criar novo item da lista
             const taskItem = createTaskElement(taskText);
             
-            // Adicionar à lista
-            $('#taskList').append(taskItem);
+            // Adicionar ao topo da lista
+            $('#taskList').prepend(taskItem);
             
             // Limpar input e focar novamente
             taskInput.val('').focus();
@@ -65,7 +65,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function createTaskElement(taskText) {
-        const li = $('<li>').addClass('task-item');
+        const li = $('<li>')
+            .addClass('task-item')
+            .attr('draggable', true);
+
+        const dragHandle = $('<i>')
+            .addClass('fas fa-grip-vertical drag-handle');
+            
         const checkbox = $('<input>')
             .attr('type', 'checkbox')
             .addClass('task-checkbox')
@@ -73,9 +79,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 textSpan.toggleClass('completed');
                 saveTasks();
             });
+
         const textSpan = $('<span>')
             .addClass('task-text')
             .text(taskText);
+
         const deleteBtn = $('<button>')
             .addClass('delete-btn')
             .html('<i class="fas fa-trash"></i>')
@@ -86,8 +94,79 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
-        li.append(checkbox, textSpan, deleteBtn);
+        // Adicionar eventos de drag and drop
+        li[0].addEventListener('dragstart', handleDragStart);
+        li[0].addEventListener('dragend', handleDragEnd);
+        li[0].addEventListener('dragover', handleDragOver);
+        li[0].addEventListener('drop', handleDrop);
+        li[0].addEventListener('dragenter', handleDragEnter);
+        li[0].addEventListener('dragleave', handleDragLeave);
+
+        li.append(dragHandle, checkbox, textSpan, deleteBtn);
         return li;
+    }
+
+    // Funções de Drag and Drop
+    let draggedItem = null;
+    let dropIndicator = $('<div>').addClass('drop-indicator');
+
+    function handleDragStart(e) {
+        draggedItem = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        
+        // Remover qualquer indicador existente
+        $('.drop-indicator').remove();
+    }
+
+    function handleDragEnd(e) {
+        this.classList.remove('dragging');
+        // Remover o indicador
+        $('.drop-indicator').remove();
+        draggedItem = null;
+    }
+
+    function handleDragOver(e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        e.dataTransfer.dropEffect = 'move';
+        return false;
+    }
+
+    function handleDragEnter(e) {
+        if (this !== draggedItem) {
+            // Remover qualquer indicador existente
+            $('.drop-indicator').remove();
+            
+            // Criar e inserir novo indicador
+            const newIndicator = dropIndicator.clone();
+            $(this).before(newIndicator);
+            newIndicator.addClass('active');
+        }
+    }
+
+    function handleDragLeave(e) {
+        const relatedTarget = e.relatedTarget;
+        if (!relatedTarget || !this.contains(relatedTarget)) {
+            // Remover o indicador apenas se o mouse sair completamente do item
+            $('.drop-indicator').remove();
+        }
+    }
+
+    function handleDrop(e) {
+        e.stopPropagation();
+        e.preventDefault();
+
+        if (draggedItem !== this) {
+            // Inserir o item arrastado antes do item atual
+            this.parentNode.insertBefore(draggedItem, this);
+            saveTasks();
+        }
+
+        // Remover o indicador
+        $('.drop-indicator').remove();
+        return false;
     }
 
     function saveTasks() {

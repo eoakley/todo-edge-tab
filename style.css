@@ -8,6 +8,8 @@
     --delete-color: #ff4444;
     --delete-hover: #cc0000;
     --completed-color: #888;
+    --drag-handle-color: #888;
+    --drag-over-bg: rgba(76, 175, 80, 0.1);
 }
 
 [data-theme="dark"] {
@@ -20,6 +22,8 @@
     --delete-color: #d32f2f;
     --delete-hover: #b71c1c;
     --completed-color: #666;
+    --drag-handle-color: #666;
+    --drag-over-bg: rgba(76, 175, 80, 0.15);
 }
 
 body {
@@ -123,7 +127,38 @@ h2 {
     border: 1px solid var(--border-color);
     margin-bottom: 8px;
     border-radius: 6px;
-    transition: transform 0.2s, border-color 0.3s;
+    cursor: grab;
+}
+
+.task-item:active {
+    cursor: grabbing;
+}
+
+.task-item.dragging {
+    opacity: 0.5;
+}
+
+.drop-indicator {
+    height: 2px;
+    background-color: var(--button-color);
+    margin: 0;
+    transition: all 0.2s;
+    display: none;
+}
+
+.drop-indicator.active {
+    display: block;
+}
+
+.drag-handle {
+    color: var(--drag-handle-color);
+    margin-right: 8px;
+    cursor: grab;
+    padding: 4px;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
 }
 
 .task-item:hover {

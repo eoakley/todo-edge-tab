@@ -135,30 +135,29 @@ document.addEventListener('DOMContentLoaded', function() {
             .addClass('timer-container')
             .append(
                 $('<button>')
-                    .addClass('timer-btn play-btn')
+                    .addClass('timer-btn toggle-timer')
                     .html('<i class="fas fa-play"></i>')
                     .click(function() {
                         const btn = $(this);
-                        const isPaused = !btn.hasClass('active');
-                        btn.toggleClass('active');
-                        const pauseBtn = btn.siblings('.pause-btn');
-                        pauseBtn.toggleClass('active');
+                        const isPlaying = btn.hasClass('active');
                         
-                        if (isPaused) {
+                        // Pausar qualquer outro timer ativo
+                        if (!isPlaying) {
+                            $('.timer-btn.toggle-timer.active').each(function() {
+                                $(this).removeClass('active')
+                                    .html('<i class="fas fa-play"></i>');
+                                pauseTimer($(this).closest('.task-item'));
+                            });
+                        }
+                        
+                        btn.toggleClass('active');
+                        btn.html(isPlaying ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>');
+                        
+                        if (!isPlaying) {
                             startTimer(li);
                         } else {
                             pauseTimer(li);
                         }
-                    }),
-                $('<button>')
-                    .addClass('timer-btn pause-btn')
-                    .html('<i class="fas fa-pause"></i>')
-                    .click(function() {
-                        const btn = $(this);
-                        const playBtn = btn.siblings('.play-btn');
-                        btn.toggleClass('active');
-                        playBtn.toggleClass('active');
-                        pauseTimer(li);
                     }),
                 $('<span>')
                     .addClass('timer-display')
@@ -169,17 +168,42 @@ document.addEventListener('DOMContentLoaded', function() {
                             .attr('type', 'text')
                             .addClass('timer-input')
                             .val(currentDisplay)
-                            .blur(function() {
-                                const newTime = $(this).val();
-                                if (/^\d{2}:\d{2}:\d{2}$/.test(newTime)) {
-                                    const [hours, minutes, seconds] = newTime.split(':').map(Number);
-                                    const totalSeconds = hours * 3600 + minutes * 60 + seconds;
-                                    li.data('timeSpent', totalSeconds);
-                                    $(this).parent().html(newTime);
-                                    saveTasks();
-                                } else {
-                                    $(this).parent().html(currentDisplay);
+                            .on('input', function(e) {
+                                let value = e.target.value.replace(/[^\d:]/g, '');
+                                const parts = value.split(':');
+                                
+                                // Adicionar : automaticamente
+                                if (value.length === 2 && !value.includes(':')) {
+                                    value += ':';
+                                } else if (value.length === 5 && value.split(':').length === 2) {
+                                    value += ':';
                                 }
+                                
+                                // Limitar a 8 caracteres (HH:MM:SS)
+                                if (value.length > 8) {
+                                    value = value.slice(0, 8);
+                                }
+                                
+                                e.target.value = value;
+                            })
+                            .blur(function() {
+                                let newTime = $(this).val();
+                                const parts = newTime.split(':').map(part => part.padStart(2, '0'));
+                                
+                                // Validar e formatar o tempo
+                                if (parts.length === 3) {
+                                    const [hours, minutes, seconds] = parts.map(Number);
+                                    if (!isNaN(hours) && !isNaN(minutes) && !isNaN(seconds) &&
+                                        minutes < 60 && seconds < 60) {
+                                        const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                                        const totalSeconds = hours * 3600 + minutes * 60 + seconds;
+                                        li.data('timeSpent', totalSeconds);
+                                        $(this).parent().html(formattedTime);
+                                        saveTasks();
+                                        return;
+                                    }
+                                }
+                                $(this).parent().html(currentDisplay);
                             })
                             .keypress(function(e) {
                                 if (e.which === 13) {
@@ -215,30 +239,47 @@ document.addEventListener('DOMContentLoaded', function() {
             // Criar container de subtarefas
             const subtasksContainer = $('<div>').addClass('subtasks-container');
             
-            // Criar container de input
-            const inputContainer = $('<div>').addClass('input-container');
-            const subtaskInput = $('<input>')
-                .attr('type', 'text')
-                .attr('placeholder', 'Digite uma subtarefa...')
-                .addClass('subtask-input')
-                .keypress(function(e) {
-                    if (e.which == 13) {
-                        addSubtask($(this));
-                    }
-                });
-            const addButton = $('<button>')
-                .text('Adicionar')
-                .click(function() {
-                    addSubtask($(this).prev());
-                });
-            
-            inputContainer.append(subtaskInput, addButton);
-            
             // Criar lista de subtarefas
             const subtaskList = $('<ul>').addClass('subtask-list');
             
+            // Criar placeholder para adicionar nova subtarefa
+            const addSubtaskPlaceholder = $('<div>')
+                .addClass('add-subtask-placeholder')
+                .html('<i class="fas fa-plus"></i> Nova subtarefa')
+                .click(function() {
+                    // Remover placeholder
+                    $(this).hide();
+                    
+                    // Mostrar input container
+                    const inputContainer = $('<div>').addClass('input-container');
+                    const subtaskInput = $('<input>')
+                        .attr('type', 'text')
+                        .attr('placeholder', 'Digite uma subtarefa...')
+                        .addClass('subtask-input')
+                        .keypress(function(e) {
+                            if (e.which == 13) {
+                                addSubtask($(this));
+                                // Restaurar placeholder e remover input
+                                addSubtaskPlaceholder.show();
+                                inputContainer.remove();
+                            }
+                        });
+                    const addButton = $('<button>')
+                        .text('Adicionar')
+                        .click(function() {
+                            addSubtask(subtaskInput);
+                            // Restaurar placeholder e remover input
+                            addSubtaskPlaceholder.show();
+                            inputContainer.remove();
+                        });
+                    
+                    inputContainer.append(subtaskInput, addButton);
+                    subtasksContainer.append(inputContainer);
+                    subtaskInput.focus();
+                });
+            
             // Montar a estrutura completa
-            subtasksContainer.append(inputContainer, subtaskList);
+            subtasksContainer.append(subtaskList, addSubtaskPlaceholder);
 
             li.append(checkbox, expandBtn, textSpan, timerContainer, deleteBtn, subtasksContainer);
         } else {

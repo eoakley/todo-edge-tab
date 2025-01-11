@@ -6,9 +6,9 @@ changes pra release maybe?
 - swap idioma pt-br/us-eng
 - historico? task graveyard?
 - opções?
-    - novas tarefas em cima ou em baixo
-    - novas subtarefas em cmia ou em baixo
+    - novas tarefas aparecem em cima ou em baixo
+    - novas subtarefas aparecem em cima ou em baixo
     - tema dark ou light
-    - confete animation
-    - search bar do google
-    
+    - confete animation on/off
+    - search bar do google on/off
+    - idioma pt-br/us-eng

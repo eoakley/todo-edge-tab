@@ -13,8 +13,8 @@
             <div id="clock"></div>
             <div id="date"></div>
         </div>
-        <button id="themeToggle" class="theme-toggle">
-            <i class="fas fa-moon"></i>
+        <button id="settingsBtn" class="settings-btn">
+            <i class="fas fa-cog"></i>
         </button>
     </div>
 
@@ -53,6 +53,65 @@
             <div class="description-actions">
                 <button class="description-cancel">Cancelar</button>
                 <button class="description-save">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="settings-modal">
+        <div class="settings-content">
+            <h3>Configurações</h3>
+            <div class="settings-group">
+                <label>
+                    <span>Novas tarefas aparecem em</span>
+                    <select id="newTaskPosition">
+                        <option value="top">Cima</option>
+                        <option value="bottom">Baixo</option>
+                    </select>
+                </label>
+
+                <label>
+                    <span>Novas subtarefas aparecem em</span>
+                    <select id="newSubtaskPosition">
+                        <option value="top">Cima</option>
+                        <option value="bottom">Baixo</option>
+                    </select>
+                </label>
+
+                <label>
+                    <span>Tema</span>
+                    <select id="themeSelect">
+                        <option value="light">Claro</option>
+                        <option value="dark">Escuro</option>
+                    </select>
+                </label>
+
+                <label>
+                    <span>Animação de confete</span>
+                    <select id="confettiEnabled">
+                        <option value="true">Ativada</option>
+                        <option value="false">Desativada</option>
+                    </select>
+                </label>
+
+                <label>
+                    <span>Barra de pesquisa Google</span>
+                    <select id="searchBarEnabled">
+                        <option value="true">Visível</option>
+                        <option value="false">Oculta</option>
+                    </select>
+                </label>
+
+                <label>
+                    <span>Idioma</span>
+                    <select id="language">
+                        <option value="pt-BR">Português (BR)</option>
+                        <option value="en-US">English (US)</option>
+                    </select>
+                </label>
+            </div>
+            <div class="settings-actions">
+                <button class="settings-cancel">Cancelar</button>
+                <button class="settings-save">Salvar</button>
             </div>
         </div>
     </div>

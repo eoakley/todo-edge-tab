@@ -1,4 +1,82 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Configurações padrão
+    const defaultSettings = {
+        newTaskPosition: 'top',
+        newSubtaskPosition: 'bottom',
+        theme: 'light',
+        confettiEnabled: true,
+        searchBarEnabled: true,
+        language: 'pt-BR'
+    };
+
+    // Carregar configurações
+    let settings = { ...defaultSettings };
+    chrome.storage.local.get(['settings'], function(result) {
+        if (result.settings) {
+            settings = { ...defaultSettings, ...result.settings };
+            applySettings(settings);
+        }
+    });
+
+    // Aplicar configurações
+    function applySettings(settings) {
+        // Aplicar tema
+        $('html').attr('data-theme', settings.theme);
+        
+        // Aplicar visibilidade da barra de pesquisa
+        $('.search-container').toggle(settings.searchBarEnabled);
+        
+        // Atualizar valores no modal de configurações
+        $('#newTaskPosition').val(settings.newTaskPosition);
+        $('#newSubtaskPosition').val(settings.newSubtaskPosition);
+        $('#themeSelect').val(settings.theme);
+        $('#confettiEnabled').val(settings.confettiEnabled.toString());
+        $('#searchBarEnabled').val(settings.searchBarEnabled.toString());
+        $('#language').val(settings.language);
+    }
+
+    // Salvar configurações
+    function saveSettings(newSettings) {
+        settings = { ...settings, ...newSettings };
+        chrome.storage.local.set({ settings }, function() {
+            if (chrome.runtime.lastError) {
+                console.error('Erro ao salvar configurações:', chrome.runtime.lastError);
+                return;
+            }
+            applySettings(settings);
+        });
+    }
+
+    // Event listeners para o modal de configurações
+    $('#settingsBtn').click(function() {
+        $('.settings-modal').addClass('active');
+    });
+
+    $('.settings-cancel').click(function() {
+        $('.settings-modal').removeClass('active');
+    });
+
+    $('.settings-save').click(function() {
+        const newSettings = {
+            newTaskPosition: $('#newTaskPosition').val(),
+            newSubtaskPosition: $('#newSubtaskPosition').val(),
+            theme: $('#themeSelect').val(),
+            confettiEnabled: $('#confettiEnabled').val() === 'true',
+            searchBarEnabled: $('#searchBarEnabled').val() === 'true',
+            language: $('#language').val()
+        };
+        
+        saveSettings(newSettings);
+        $('.settings-modal').removeClass('active');
+    });
+
+    // Fechar modal ao clicar fora
+    $('.settings-modal').click(function(e) {
+        if ($(e.target).hasClass('settings-modal')) {
+            $(this).removeClass('active');
+        }
+    });
+
     // Carregar e exibir uma frase aleatória
     fetch('frases.json')
         .then(response => response.json())
@@ -106,16 +184,16 @@ document.addEventListener('DOMContentLoaded', function() {
         const taskText = taskInput.val().trim();
         
         if (taskText) {
-            // Criar novo item da lista
             const taskItem = createTaskElement(taskText);
             
-            // Adicionar ao topo da lista
-            $('#taskList').prepend(taskItem);
+            // Adicionar tarefa baseado na configuração
+            if (settings.newTaskPosition === 'top') {
+                $('#taskList').prepend(taskItem);
+            } else {
+                $('#taskList').append(taskItem);
+            }
             
-            // Limpar input e focar novamente
             taskInput.val('').focus();
-            
-            // Salvar tarefas
             saveTasks();
         }
     }
@@ -439,7 +517,15 @@ document.addEventListener('DOMContentLoaded', function() {
         const subtaskText = input.val().trim();
         if (subtaskText) {
             const subtaskItem = createTaskElement(subtaskText, true);
-            input.closest('.subtasks-container').find('.subtask-list').append(subtaskItem);
+            const subtaskList = input.closest('.subtasks-container').find('.subtask-list');
+            
+            // Adicionar subtarefa baseado na configuração
+            if (settings.newSubtaskPosition === 'top') {
+                subtaskList.prepend(subtaskItem);
+            } else {
+                subtaskList.append(subtaskItem);
+            }
+            
             input.val('').focus();
             saveTasks();
         }
@@ -667,8 +753,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Função para mostrar a animação de confete
+    // Função para mostrar a animação de confete (atualizada)
     function showCompletionAnimation(e, timeSpent = 0) {
+        // Se as animações estiverem desativadas, não fazer nada
+        if (!settings.confettiEnabled) return;
+
         const colors = ["#4CAF50", "#45a049", "#66bb6a", "#81c784"];
         
         const bounds = e.target.getBoundingClientRect();

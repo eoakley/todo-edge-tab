@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     <link rel="stylesheet" href="fontawesome/css/all.min.css">
     <script src="jquery-3.7.1.min.js"></script>
+    <script src="translations.js"></script>
 </head>
 <body>
     <div class="header-container">
@@ -25,7 +26,7 @@
 
     <div class="search-container">
         <form action="https://www.google.com/search" method="GET" target="_blank">
-            <input type="text" name="q" class="search-input" placeholder="Pesquisar no Google...">
+            <input type="text" name="q" class="search-input" data-i18n-placeholder="search.placeholder">
             <button type="submit" class="search-button">
                 <i class="fas fa-search"></i>
             </button>
@@ -36,8 +37,8 @@
         <div class="tasks-header">
             <h2>TO-DO</h2>
             <div class="input-container">
-                <input type="text" id="taskInput" placeholder="Digite uma nova tarefa...">
-                <button id="addTask">Adicionar</button>
+                <input type="text" id="taskInput" data-i18n-placeholder="task.new_task">
+                <button id="addTask" data-i18n="task.add">Adicionar</button>
             </div>
         </div>
         <ul id="taskList"></ul>
@@ -48,61 +49,61 @@
 
     <div class="description-modal">
         <div class="description-content">
-            <h3>Descrição da Tarefa</h3>
-            <textarea class="description-textarea" placeholder="Digite uma descrição para esta tarefa..."></textarea>
+            <h3 data-i18n="task.description">Descrição da Tarefa</h3>
+            <textarea class="description-textarea" data-i18n-placeholder="task.description_placeholder"></textarea>
             <div class="description-actions">
-                <button class="description-cancel">Cancelar</button>
-                <button class="description-save">Salvar</button>
+                <button class="description-cancel" data-i18n="settings.cancel">Cancelar</button>
+                <button class="description-save" data-i18n="settings.save">Salvar</button>
             </div>
         </div>
     </div>
 
     <div class="settings-modal">
         <div class="settings-content">
-            <h3>Configurações</h3>
+            <h3 data-i18n="settings.title">Configurações</h3>
             <div class="settings-group">
                 <label>
-                    <span>Novas tarefas aparecem em</span>
+                    <span data-i18n="settings.newTasksPosition">Novas tarefas aparecem em</span>
                     <select id="newTaskPosition">
-                        <option value="top">Cima</option>
-                        <option value="bottom">Baixo</option>
+                        <option value="top" data-i18n="settings.positions.top">Cima</option>
+                        <option value="bottom" data-i18n="settings.positions.bottom">Baixo</option>
                     </select>
                 </label>
 
                 <label>
-                    <span>Novas subtarefas aparecem em</span>
+                    <span data-i18n="settings.newSubtasksPosition">Novas subtarefas aparecem em</span>
                     <select id="newSubtaskPosition">
-                        <option value="top">Cima</option>
-                        <option value="bottom">Baixo</option>
+                        <option value="top" data-i18n="settings.positions.top">Cima</option>
+                        <option value="bottom" data-i18n="settings.positions.bottom">Baixo</option>
                     </select>
                 </label>
 
                 <label>
-                    <span>Tema</span>
+                    <span data-i18n="settings.theme">Tema</span>
                     <select id="themeSelect">
-                        <option value="light">Claro</option>
-                        <option value="dark">Escuro</option>
+                        <option value="light" data-i18n="settings.theme_options.light">Claro</option>
+                        <option value="dark" data-i18n="settings.theme_options.dark">Escuro</option>
                     </select>
                 </label>
 
                 <label>
-                    <span>Animação de confete</span>
+                    <span data-i18n="settings.confetti">Animação de confete</span>
                     <select id="confettiEnabled">
-                        <option value="true">Ativada</option>
-                        <option value="false">Desativada</option>
+                        <option value="true" data-i18n="settings.enabled_options.enabled">Ativada</option>
+                        <option value="false" data-i18n="settings.enabled_options.disabled">Desativada</option>
                     </select>
                 </label>
 
                 <label>
-                    <span>Barra de pesquisa Google</span>
+                    <span data-i18n="settings.searchBar">Barra de pesquisa Google</span>
                     <select id="searchBarEnabled">
-                        <option value="true">Visível</option>
-                        <option value="false">Oculta</option>
+                        <option value="true" data-i18n="settings.visibility_options.visible">Visível</option>
+                        <option value="false" data-i18n="settings.visibility_options.hidden">Oculta</option>
                     </select>
                 </label>
 
                 <label>
-                    <span>Idioma</span>
+                    <span data-i18n="settings.language">Idioma</span>
                     <select id="language">
                         <option value="pt-BR">Português (BR)</option>
                         <option value="en-US">English (US)</option>
@@ -110,8 +111,8 @@
                 </label>
             </div>
             <div class="settings-actions">
-                <button class="settings-cancel">Cancelar</button>
-                <button class="settings-save">Salvar</button>
+                <button class="settings-cancel" data-i18n="settings.cancel">Cancelar</button>
+                <button class="settings-save" data-i18n="settings.save">Salvar</button>
             </div>
         </div>
     </div>

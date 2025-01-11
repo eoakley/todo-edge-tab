@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const defaultSettings = {
         newTaskPosition: 'top',
         newSubtaskPosition: 'bottom',
-        theme: 'light',
+        theme: 'dark',
         confettiEnabled: true,
         searchBarEnabled: true,
         language: 'pt-BR'
@@ -16,7 +16,54 @@ document.addEventListener('DOMContentLoaded', function() {
             settings = { ...defaultSettings, ...result.settings };
             applySettings(settings);
         }
+        // Inicializar traduções após carregar configurações
+        updateTranslations();
     });
+
+    // Função para atualizar traduções
+    function updateTranslations() {
+        const lang = settings.language;
+        
+        // Atualizar textos
+        $('[data-i18n]').each(function() {
+            const key = $(this).attr('data-i18n');
+            const translation = getTranslation(key, lang);
+            $(this).text(translation);
+        });
+
+        // Atualizar placeholders
+        $('[data-i18n-placeholder]').each(function() {
+            const key = $(this).attr('data-i18n-placeholder');
+            const translation = getTranslation(key, lang);
+            $(this).attr('placeholder', translation);
+        });
+
+        // Atualizar opções de select mantendo os valores selecionados
+        $('select').each(function() {
+            const currentValue = $(this).val();
+            $(this).find('option[data-i18n]').each(function() {
+                const key = $(this).attr('data-i18n');
+                const translation = getTranslation(key, lang);
+                $(this).text(translation);
+            });
+            $(this).val(currentValue);
+        });
+    }
+
+    // Função auxiliar para obter tradução
+    function getTranslation(key, lang) {
+        const keys = key.split('.');
+        let value = translations[lang];
+        for (const k of keys) {
+            if (value && value[k]) {
+                value = value[k];
+            } else {
+                console.warn(`Translation missing for key: ${key} in language: ${lang}`);
+                return key;
+            }
+        }
+        return value;
+    }
 
     // Aplicar configurações
     function applySettings(settings) {
@@ -33,10 +80,14 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#confettiEnabled').val(settings.confettiEnabled.toString());
         $('#searchBarEnabled').val(settings.searchBarEnabled.toString());
         $('#language').val(settings.language);
+
+        // Atualizar traduções
+        updateTranslations();
     }
 
     // Salvar configurações
     function saveSettings(newSettings) {
+        const oldLang = settings.language;
         settings = { ...settings, ...newSettings };
         chrome.storage.local.set({ settings }, function() {
             if (chrome.runtime.lastError) {
@@ -104,20 +155,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateDateTime() {
         const now = new Date();
         
-        // Atualizar relógio
+        // Atualizar relógio (formato 24h para ambos os idiomas)
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
         document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
         
-        // Atualizar data
+        // Atualizar data com o idioma correto
         const options = { 
             weekday: 'long', 
             year: 'numeric', 
             month: 'long', 
             day: 'numeric' 
         };
-        const dateStr = now.toLocaleDateString('pt-BR', options);
+        const dateStr = now.toLocaleDateString(settings.language, options);
         document.getElementById('date').textContent = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
     }
     
@@ -462,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Criar placeholder para adicionar nova subtarefa
             const addSubtaskPlaceholder = $('<div>')
                 .addClass('add-subtask-placeholder')
-                .html('<i class="fas fa-plus"></i> Nova subtarefa')
+                .html(`<i class="fas fa-plus"></i> <span data-i18n="task.add_subtask">${getTranslation('task.add_subtask', settings.language)}</span>`)
                 .click(function() {
                     // Remover placeholder
                     $(this).hide();
@@ -471,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const inputContainer = $('<div>').addClass('input-container');
                     const subtaskInput = $('<input>')
                         .attr('type', 'text')
-                        .attr('placeholder', 'Digite uma subtarefa...')
+                        .attr('placeholder', getTranslation('task.new_subtask', settings.language))
                         .addClass('subtask-input')
                         .keypress(function(e) {
                             if (e.which == 13) {
@@ -804,6 +855,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para mostrar a animação de partículas na deleção
     function showDeletionAnimation(e) {
+        // Se as animações estiverem desativadas, não fazer nada
+        if (!settings.confettiEnabled) return;
+
         const colors = ["#ff4444", "#cc0000", "#d32f2f", "#b71c1c"];
         
         const bounds = e.target.closest('.task-item').getBoundingClientRect();

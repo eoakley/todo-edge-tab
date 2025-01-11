@@ -1,4 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Carregar e exibir uma frase aleatória
+    fetch('frases.json')
+        .then(response => response.json())
+        .then(data => {
+            const quotes = data.quotes;
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const quote = quotes[randomIndex];
+            
+            document.getElementById('quote').textContent = `"${quote.text}"`;
+            document.getElementById('author').textContent = `- ${quote.author}`;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar as frases:', error);
+            document.getElementById('quote').textContent = 'Faça hoje melhor do que ontem';
+            document.getElementById('author').textContent = '- Anônimo';
+        });
+
     // Inicializar relógio e data
     function updateDateTime() {
         const now = new Date();
@@ -491,62 +508,106 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveTasks() {
         const tasks = [];
-        $('#taskList > li').each(function() {
-            const task = {
-                text: $(this).find('> .task-text').text(),
-                completed: $(this).find('> .task-text').hasClass('completed'),
-                timeSpent: $(this).data('timeSpent') || 0,
+        $('#taskList > .task-item').each(function() {
+            const $task = $(this);
+            const taskData = {
+                text: $task.find('> .task-text').text(),
+                completed: $task.find('> .task-checkbox').prop('checked'),
+                timeSpent: parseInt($task.data('timeSpent')) || 0,
+                timerStartTime: $task.find('.timer-btn').hasClass('active') ? $task.data('timerStartTime') : null,
                 subtasks: []
             };
 
-            // Salvar subtarefas
-            $(this).find('.subtask-list > li').each(function() {
-                task.subtasks.push({
-                    text: $(this).find('.task-text').text(),
-                    completed: $(this).find('.task-text').hasClass('completed')
+            // Save subtasks
+            $task.find('.subtask-list > .task-item').each(function() {
+                const $subtask = $(this);
+                taskData.subtasks.push({
+                    text: $subtask.find('.task-text').text(),
+                    completed: $subtask.find('.task-checkbox').prop('checked')
                 });
             });
 
-            tasks.push(task);
+            tasks.push(taskData);
         });
-        
-        localStorage.setItem('tasks', JSON.stringify(tasks));
+
+        // Save to Chrome storage
+        chrome.storage.local.set({ tasks: tasks }, function() {
+            if (chrome.runtime.lastError) {
+                console.error('Erro ao salvar tarefas:', chrome.runtime.lastError);
+                return;
+            }
+            // Broadcast update to other tabs
+            chrome.runtime.sendMessage({ 
+                action: 'tasksUpdated', 
+                tasks: tasks,
+                source: 'popup'
+            });
+        });
     }
 
     function loadTasks() {
-        const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-        tasks.forEach(function(task) {
-            const taskItem = createTaskElement(task.text);
-            if (task.completed) {
-                taskItem.find('> .task-checkbox').prop('checked', true);
-                taskItem.find('> .task-text').addClass('completed');
-            }
-            
-            if (task.timeSpent) {
-                taskItem.data('timeSpent', task.timeSpent);
-                const hours = Math.floor(task.timeSpent / 3600);
-                const minutes = Math.floor((task.timeSpent % 3600) / 60);
-                const seconds = task.timeSpent % 60;
-                const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-                taskItem.find('.timer-display').text(display);
+        chrome.storage.local.get(['tasks'], function(result) {
+            if (chrome.runtime.lastError) {
+                console.error('Erro ao carregar tarefas:', chrome.runtime.lastError);
+                return;
             }
 
-            // Carregar subtarefas
-            if (task.subtasks && task.subtasks.length > 0) {
-                const subtaskList = taskItem.find('.subtask-list');
-                task.subtasks.forEach(function(subtask) {
-                    const subtaskItem = createTaskElement(subtask.text, true);
-                    if (subtask.completed) {
-                        subtaskItem.find('.task-checkbox').prop('checked', true);
-                        subtaskItem.find('.task-text').addClass('completed');
+            if (result.tasks && Array.isArray(result.tasks)) {
+                $('#taskList').empty();
+                result.tasks.forEach(taskData => {
+                    const taskItem = createTaskElement(taskData.text);
+                    
+                    // Restore task state
+                    if (taskData.completed) {
+                        taskItem.find('> .task-checkbox').prop('checked', true);
+                        taskItem.find('> .task-text').addClass('completed');
                     }
-                    subtaskList.append(subtaskItem);
+                    
+                    // Restore timer state
+                    const timeSpent = taskData.timeSpent || 0;
+                    taskItem.data('timeSpent', timeSpent);
+                    updateTimerDisplay(taskItem, timeSpent);
+                    
+                    if (taskData.timerStartTime) {
+                        const timerBtn = taskItem.find('.timer-btn');
+                        timerBtn.addClass('active').html('<i class="fas fa-pause"></i>');
+                        
+                        // Calculate elapsed time while popup was closed
+                        const elapsedWhileClosed = Math.floor((Date.now() - taskData.timerStartTime) / 1000);
+                        const totalTime = timeSpent + elapsedWhileClosed;
+                        
+                        // Update the time and start the timer
+                        taskItem.data('timeSpent', totalTime);
+                        taskItem.data('lastSavedTime', totalTime);
+                        updateTimerDisplay(taskItem, totalTime);
+                        startTimer(taskItem, true);
+                    }
+                    
+                    // Restore subtasks
+                    if (taskData.subtasks && taskData.subtasks.length > 0) {
+                        const subtaskList = taskItem.find('.subtask-list');
+                        taskData.subtasks.forEach(subtaskData => {
+                            const subtask = createTaskElement(subtaskData.text, true);
+                            if (subtaskData.completed) {
+                                subtask.find('.task-checkbox').prop('checked', true);
+                                subtask.find('.task-text').addClass('completed');
+                            }
+                            subtaskList.append(subtask);
+                        });
+                    }
+                    
+                    $('#taskList').append(taskItem);
                 });
             }
-
-            $('#taskList').append(taskItem);
         });
     }
+
+    // Listen for updates from other tabs
+    chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+        if (request.action === 'tasksUpdated' && request.source !== 'popup') {
+            loadTasks();
+        }
+    });
 
     function initializeTheme() {
         const savedTheme = localStorage.getItem('theme') || 'light';
@@ -623,37 +684,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function startTimer(taskElement) {
+    function startTimer(taskElement, isRestore = false) {
+        // Clear any existing interval
         if (taskElement.data('timerInterval')) {
             clearInterval(taskElement.data('timerInterval'));
         }
-
-        const startTime = Date.now() - (taskElement.data('timeSpent') || 0) * 1000;
+        
+        const now = Date.now();
+        if (!isRestore) {
+            taskElement.data('timerStartTime', now);
+            // Store the initial timeSpent as lastSavedTime
+            taskElement.data('lastSavedTime', parseInt(taskElement.data('timeSpent')) || 0);
+        }
         taskElement.addClass('timer-active');
         
-        const interval = setInterval(() => {
-            const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-            taskElement.data('timeSpent', elapsedSeconds);
+        let lastTick = Date.now();
+        const timerInterval = setInterval(() => {
+            if (!taskElement.find('.timer-btn').hasClass('active')) {
+                clearInterval(timerInterval);
+                return;
+            }
             
-            const hours = Math.floor(elapsedSeconds / 3600);
-            const minutes = Math.floor((elapsedSeconds % 3600) / 60);
-            const seconds = elapsedSeconds % 60;
+            const currentTime = Date.now();
+            const tickDiff = Math.floor((currentTime - lastTick) / 1000);
             
-            const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            taskElement.find('.timer-display').text(display);
-            
+            if (tickDiff >= 1) {
+                const currentTotal = parseInt(taskElement.data('timeSpent')) || 0;
+                updateTimerDisplay(taskElement, currentTotal + 1);
+                lastTick = currentTime;
+            }
+        }, 100); // Check more frequently for smoother updates
+        
+        taskElement.data('timerInterval', timerInterval);
+        
+        // Only save if it's not a restore operation
+        if (!isRestore) {
             saveTasks();
-        }, 1000);
-
-        taskElement.data('timerInterval', interval);
+        }
     }
 
     function pauseTimer(taskElement) {
-        const interval = taskElement.data('timerInterval');
-        if (interval) {
-            clearInterval(interval);
-            taskElement.data('timerInterval', null);
-            taskElement.removeClass('timer-active');
-        }
+        clearInterval(taskElement.data('timerInterval'));
+        taskElement.removeData('timerInterval');
+        taskElement.removeData('timerStartTime');
+        taskElement.removeClass('timer-active');
+        saveTasks();
     }
+
+    function updateTimerDisplay(taskElement, seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+        
+        const display = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        taskElement.find('.timer-display').text(display);
+        taskElement.data('timeSpent', seconds);
+    }
+
+    // Add event listener for when the popup is about to close
+    window.addEventListener('unload', function() {
+        // Save the current state of all timers
+        $('.task-item').each(function() {
+            const $task = $(this);
+            if ($task.find('.timer-btn').hasClass('active')) {
+                const timeSpent = parseInt($task.data('timeSpent')) || 0;
+                $task.data('timeSpent', timeSpent);
+            }
+        });
+        saveTasks();
+    });
 }); 

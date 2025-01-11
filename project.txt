@@ -1,12 +1,4 @@
 todo:
-- ajustar design, mais foco no texto das tasks
-- aumentar fonte e tudo em geral esta mt pequeno
-- adicionar frase inspiracional
-    gerar 50 frases no perplexity e rotacionar entre elas cada new tab.
-
-- garantir sincronia entre tabs.
-- garantir que o tracking funciona mesmo se fechar a aba e abrir de novo depois
-
 
 
 changes pra release maybe?

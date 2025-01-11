@@ -35,8 +35,9 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px;
+    gap: 40px;
     transition: background-color 0.3s;
+    font-size: 16px;
 }
 
 .header-container {
@@ -53,22 +54,43 @@ body {
 }
 
 #clock {
-    font-size: 3.5rem;
+    font-size: 4.5rem;
     font-weight: bold;
     color: var(--text-color);
     font-family: 'Arial', sans-serif;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 #date {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.quote-container {
+    text-align: center;
+    max-width: 800px;
+    padding: 0 20px;
+    margin: 20px 0;
+}
+
+.quote {
+    font-size: 1.5rem;
+    color: var(--text-color);
+    font-style: italic;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.quote-author {
+    font-size: 1.1rem;
     color: var(--text-color);
     opacity: 0.8;
 }
 
 .search-container {
     width: 100%;
-    max-width: 672px;
+    max-width: 800px;
     margin: 20px auto;
 }
 
@@ -79,10 +101,10 @@ body {
 
 .search-input {
     flex: 1;
-    padding: 15px 20px;
-    font-size: 1.1rem;
+    padding: 18px 25px;
+    font-size: 1.3rem;
     border: 2px solid var(--border-color);
-    border-radius: 25px;
+    border-radius: 30px;
     background-color: var(--container-bg);
     color: var(--text-color);
     transition: all 0.3s ease;
@@ -95,13 +117,14 @@ body {
 }
 
 .search-button {
-    padding: 15px 25px;
+    padding: 18px 30px;
     background-color: var(--button-color);
     color: white;
     border: none;
     border-radius: 25px;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-size: 1.2rem;
 }
 
 .search-button:hover {
@@ -109,12 +132,12 @@ body {
 }
 
 .tasks-container {
-    width: 672px;
+    width: 640px;
     background-color: var(--container-bg);
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-top: 30px;
+    padding: 24px;
+    margin-top: 24px;
 }
 
 /* Estilização da barra de rolagem */
@@ -144,12 +167,13 @@ body {
 }
 
 .tasks-header {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
 .tasks-header h2 {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     color: var(--text-color);
+    font-size: 1.6rem;
 }
 
 .container {
@@ -186,16 +210,16 @@ h2 {
 
 .input-container {
     display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
 #taskInput {
     flex: 1;
     padding: 12px;
     border: 2px solid var(--border-color);
-    border-radius: 6px;
-    font-size: 16px;
+    border-radius: 5px;
+    font-size: 1rem;
     background-color: var(--container-bg);
     color: var(--text-color);
     transition: border-color 0.3s;
@@ -207,13 +231,13 @@ h2 {
 }
 
 #addTask {
-    padding: 12px 25px;
+    padding: 12px 24px;
     background-color: var(--button-color);
     color: white;
     border: none;
-    border-radius: 6px;
+    border-radius: 5px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 1rem;
     transition: background-color 0.2s;
 }
 
@@ -228,16 +252,17 @@ h2 {
 }
 
 .task-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background-color: rgba(0, 0, 0, 0.02);
-    border: 1px solid var(--border-color);
+    padding: 8px;
     margin-bottom: 8px;
-    border-radius: 6px;
+    background-color: var(--container-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    display: flex;
     flex-wrap: wrap;
-    transition: background-color 0.3s;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 [data-theme="dark"] .task-item {
@@ -277,8 +302,8 @@ h2 {
     border: none;
     color: var(--delete-color);
     cursor: pointer;
-    padding: 5px 8px;
-    font-size: 1.1rem;
+    padding: 8px 12px;
+    font-size: 1.3rem;
     transition: color 0.2s;
 }
 
@@ -288,8 +313,8 @@ h2 {
 
 .task-checkbox {
     margin-right: 12px;
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     cursor: pointer;
     accent-color: var(--button-color);
 }
@@ -300,8 +325,10 @@ h2 {
     color: var(--text-color);
     transition: color 0.3s;
     cursor: pointer;
-    padding: 2px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
+    font-size: 1.2rem;
+    line-height: 1.4;
 }
 
 .task-text:not(.completed):hover {
@@ -334,8 +361,8 @@ h2 {
     border: none;
     color: var(--text-color);
     cursor: pointer;
-    padding: 5px 8px;
-    font-size: 1.1rem;
+    padding: 8px 12px;
+    font-size: 1.3rem;
     transition: transform 0.3s;
 }
 
@@ -345,8 +372,8 @@ h2 {
 
 .subtasks-container {
     width: 100%;
-    margin-left: 30px;
-    margin-top: 10px;
+    margin-top: 8px;
+    margin-left: 0;
     display: none;
 }
 
@@ -354,65 +381,31 @@ h2 {
     display: block;
 }
 
-.subtasks-container .input-container {
-    background-color: rgba(0, 0, 0, 0.02);
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-    margin-left: 20px;
-    border: 1px solid var(--border-color);
-}
-
-[data-theme="dark"] .subtasks-container .input-container {
-    background-color: rgba(255, 255, 255, 0.02);
-}
-
-.subtask-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 14px;
+.task-item {
+    padding: 8px;
+    margin-bottom: 8px;
     background-color: var(--container-bg);
-    color: var(--text-color);
-    transition: border-color 0.3s;
-}
-
-.subtask-input:focus {
-    outline: none;
-    border-color: var(--button-color);
-}
-
-.subtasks-container .input-container button {
-    padding: 8px 16px;
-    background-color: var(--button-color);
-    color: white;
-    border: none;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
-    font-size: 14px;
     transition: background-color 0.2s;
 }
 
-.subtasks-container .input-container button:hover {
-    background-color: var(--hover-color);
+.task-item.subtask {
+    margin-left: 24px;
+    background-color: rgba(0, 0, 0, 0.03);
+    cursor: default;
 }
 
 .subtask-list {
+    width: 100%;
     list-style-type: none;
     padding: 0;
-    margin: 0;
-}
-
-.task-item.subtask {
-    margin-left: 20px;
-    background-color: rgba(0, 0, 0, 0.03);
-    cursor: default;
-    transform: none;
-}
-
-.task-item.subtask:hover {
-    transform: none;
+    margin: 8px 0 0 0;
 }
 
 [data-theme="dark"] .task-item.subtask {
@@ -426,25 +419,19 @@ h2 {
 .timer-container {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin: 0 12px;
+    gap: 6px;
+    margin-left: auto;
 }
 
 .timer-btn {
-    background: none;
+    padding: 6px 10px;
+    background-color: var(--button-color);
+    color: white;
     border: none;
-    color: var(--text-color);
+    border-radius: 4px;
     cursor: pointer;
-    padding: 5px 8px;
-    font-size: 1rem;
-    opacity: 0.6;
-    transition: all 0.2s;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
 }
 
 .timer-btn:hover {
@@ -459,16 +446,11 @@ h2 {
 }
 
 .timer-display {
-    font-family: monospace;
+    font-size: 0.9rem;
     color: var(--text-color);
-    cursor: pointer;
-    padding: 2px 6px;
+    padding: 4px 8px;
     border-radius: 4px;
-    transition: background-color 0.2s;
-}
-
-.timer-display:hover {
-    background-color: var(--border-color);
+    background-color: var(--bg-color);
 }
 
 .timer-input {
@@ -491,7 +473,7 @@ h2 {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px 12px;
+    padding: 12px 15px;
     color: var(--text-color);
     opacity: 0.7;
     cursor: pointer;
@@ -499,6 +481,7 @@ h2 {
     transition: all 0.2s;
     margin-top: 8px;
     margin-left: 20px;
+    font-size: 1.1rem;
 }
 
 .add-subtask-placeholder:hover {
@@ -539,4 +522,73 @@ h2 {
 
 .task-item.timer-active {
     animation: shineEffect 3s linear infinite;
+}
+
+.subtasks-container .input-container {
+    background-color: rgba(0, 0, 0, 0.02);
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    margin-left: 24px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    gap: 8px;
+}
+
+[data-theme="dark"] .subtasks-container .input-container {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.subtask-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    transition: border-color 0.3s;
+}
+
+.subtask-input:focus {
+    outline: none;
+    border-color: var(--button-color);
+}
+
+.subtasks-container .input-container button {
+    padding: 8px 16px;
+    background-color: var(--button-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.subtasks-container .input-container button:hover {
+    background-color: var(--hover-color);
+}
+
+.add-subtask-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    margin-left: 24px;
+    color: var(--text-color);
+    opacity: 0.7;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.add-subtask-placeholder:hover {
+    background-color: var(--border-color);
+    opacity: 1;
+}
+
+.add-subtask-placeholder i {
+    font-size: 0.9em;
 } 

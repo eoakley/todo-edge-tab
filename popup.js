@@ -44,10 +44,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Suporte para colar múltiplas tarefas
     $('#taskInput').on('paste', function(e) {
-        e.preventDefault();
         const pastedText = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+        
+        // Se não houver quebras de linha no meio do texto, deixa o comportamento padrão
+        if (!pastedText.includes('\n')) {
+            return;
+        }
+        
+        // Se houver quebras de linha, previne o comportamento padrão
+        e.preventDefault();
+        
         const tasks = pastedText.split('\n').filter(task => task.trim() !== '');
         
+        // Cria tarefas para cada linha
         tasks.forEach(task => {
             if (task.trim()) {
                 const taskItem = createTaskElement(task.trim());

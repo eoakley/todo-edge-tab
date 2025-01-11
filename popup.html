@@ -7,19 +7,36 @@
     <script src="jquery-3.7.1.min.js"></script>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h2>Minha Lista de Tarefas</h2>
-            <button id="themeToggle" class="theme-toggle">
-                <i class="fas fa-moon"></i>
-            </button>
+    <div class="header-container">
+        <div id="datetime-display">
+            <div id="clock"></div>
+            <div id="date"></div>
         </div>
-        <div class="input-container">
-            <input type="text" id="taskInput" placeholder="Digite uma nova tarefa...">
-            <button id="addTask">Adicionar</button>
+        <button id="themeToggle" class="theme-toggle">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
+
+    <div class="search-container">
+        <form action="https://www.google.com/search" method="GET" target="_blank">
+            <input type="text" name="q" class="search-input" placeholder="Pesquisar no Google...">
+            <button type="submit" class="search-button">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+    </div>
+
+    <div class="tasks-container">
+        <div class="tasks-header">
+            <h2>Minhas Tarefas</h2>
+            <div class="input-container">
+                <input type="text" id="taskInput" placeholder="Digite uma nova tarefa...">
+                <button id="addTask">Adicionar</button>
+            </div>
         </div>
         <ul id="taskList"></ul>
     </div>
+
     <script src="popup.js"></script>
     <script src="tsparticles.confetti.bundle.min.js"></script>
 </body>

@@ -204,6 +204,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     .click(function() {
                         const btn = $(this);
                         const isPlaying = btn.hasClass('active');
+                        const taskItem = btn.closest('.task-item');
+                        
+                        // Se não estiver tocando e a tarefa não estiver expandida, expande
+                        if (!isPlaying && !isSubtask) {
+                            const expandBtn = taskItem.find('> .expand-btn');
+                            const subtasksContainer = taskItem.find('> .subtasks-container');
+                            if (!expandBtn.hasClass('expanded')) {
+                                expandBtn.addClass('expanded');
+                                subtasksContainer.addClass('expanded');
+                            }
+                        }
                         
                         // Pausar qualquer outro timer ativo
                         if (!isPlaying) {
@@ -286,6 +297,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         input.focus();
                     })
             );
+
+        const descriptionBtn = $('<button>')
+            .addClass('description-btn')
+            .html('<i class="fas fa-sticky-note"></i>')
+            .click(function() {
+                const modal = $('.description-modal');
+                const textarea = modal.find('.description-textarea');
+                const currentDescription = li.data('description') || '';
+                
+                textarea.val(currentDescription);
+                modal.addClass('active');
+                textarea.focus();
+
+                // Salvar referência ao item atual
+                modal.data('currentTask', li);
+            });
+
+        // Se já houver uma descrição, adicionar a classe has-description
+        if (li.data('description')) {
+            descriptionBtn.addClass('has-description');
+        }
 
         const deleteBtn = $('<button>')
             .addClass('delete-btn')
@@ -395,9 +427,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Montar a estrutura completa
             subtasksContainer.append(subtaskList, addSubtaskPlaceholder);
 
-            li.append(checkbox, expandBtn, textSpan, timerContainer, deleteBtn, subtasksContainer);
+            li.append(checkbox, expandBtn, textSpan, timerContainer, descriptionBtn, deleteBtn, subtasksContainer);
         } else {
-            li.append(checkbox, textSpan, deleteBtn);
+            li.append(checkbox, textSpan, descriptionBtn, deleteBtn);
         }
 
         return li;
@@ -521,6 +553,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 completed: $task.find('> .task-checkbox').prop('checked'),
                 timeSpent: parseInt($task.data('timeSpent')) || 0,
                 timerStartTime: $task.find('.timer-btn').hasClass('active') ? $task.data('timerStartTime') : null,
+                description: $task.data('description') || '',
                 subtasks: []
             };
 
@@ -529,7 +562,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const $subtask = $(this);
                 taskData.subtasks.push({
                     text: $subtask.find('.task-text').text(),
-                    completed: $subtask.find('.task-checkbox').prop('checked')
+                    completed: $subtask.find('.task-checkbox').prop('checked'),
+                    description: $subtask.data('description') || ''
                 });
             });
 
@@ -569,6 +603,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         taskItem.find('> .task-text').addClass('completed');
                     }
                     
+                    // Restore description
+                    if (taskData.description) {
+                        taskItem.data('description', taskData.description);
+                        taskItem.find('.description-btn').addClass('has-description');
+                    }
+                    
                     // Restore timer state
                     const timeSpent = taskData.timeSpent || 0;
                     taskItem.data('timeSpent', timeSpent);
@@ -597,6 +637,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (subtaskData.completed) {
                                 subtask.find('.task-checkbox').prop('checked', true);
                                 subtask.find('.task-text').addClass('completed');
+                            }
+                            if (subtaskData.description) {
+                                subtask.data('description', subtaskData.description);
+                                subtask.find('.description-btn').addClass('has-description');
                             }
                             subtaskList.append(subtask);
                         });
@@ -758,5 +802,33 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         saveTasks();
+    });
+
+    // Adicionar handlers para o modal de descrição
+    $('.description-cancel').click(function() {
+        $('.description-modal').removeClass('active');
+    });
+
+    $('.description-save').click(function() {
+        const modal = $('.description-modal');
+        const description = modal.find('.description-textarea').val().trim();
+        const taskItem = modal.data('currentTask');
+        
+        if (taskItem) {
+            taskItem.data('description', description);
+            // Apenas atualizar o botão da tarefa atual, não das subtarefas
+            const descriptionBtn = taskItem.find('> .description-btn');
+            descriptionBtn.toggleClass('has-description', description !== '');
+            saveTasks();
+        }
+        
+        modal.removeClass('active');
+    });
+
+    // Fechar modal ao clicar fora
+    $('.description-modal').click(function(e) {
+        if ($(e.target).hasClass('description-modal')) {
+            $(this).removeClass('active');
+        }
     });
 }); 

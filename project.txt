@@ -1,7 +1,14 @@
 todo:
-- ao expandir uma tarefa, botão adicionar descrição ao lado de nova subtarefa, que abre um campo grande (acima de todas subtarefas, abaixo da tarefa) de texto para adicionar descrição. o campo deve crescer de altura conforme a descrição é escrita e ocupa mais linhas, e ele deve criar seu proprio scrollbar acima de 10 linhas, e deve aparecer sempre que expandir a tarefa principal.
+- 
 
 changes pra release maybe?
 - opção de abrir o todo ao clicar no icone da extensao, nao abrir sempre com nova aba
 - swap idioma pt-br/us-eng
 - historico? task graveyard?
+- opções?
+    - novas tarefas em cima ou em baixo
+    - novas subtarefas em cmia ou em baixo
+    - tema dark ou light
+    - confete animation
+    - search bar do google
+    

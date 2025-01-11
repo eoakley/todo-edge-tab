@@ -591,4 +591,145 @@ h2 {
 
 .add-subtask-placeholder i {
     font-size: 0.9em;
-} 
+}
+
+.description-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 8px 12px;
+    font-size: 1.3rem;
+    transition: color 0.2s;
+    opacity: 0.7;
+}
+
+.description-btn:hover {
+    opacity: 1;
+    color: var(--button-color);
+}
+
+.description-btn.has-description {
+    color: var(--button-color);
+    opacity: 1;
+}
+
+.description-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.description-modal.active {
+    display: flex;
+}
+
+.description-content {
+    background-color: var(--container-bg);
+    padding: 25px 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.description-content h3 {
+    color: var(--text-color);
+    margin-bottom: 15px;
+}
+
+.description-textarea {
+    width: calc(100% - 24px);
+    min-height: 150px;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--container-bg);
+    color: var(--text-color);
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    max-height: 400px;
+}
+
+/* Custom scrollbar for textarea */
+.description-textarea::-webkit-scrollbar {
+    width: 8px;
+}
+
+.description-textarea::-webkit-scrollbar-track {
+    background: var(--container-bg);
+    border-radius: 4px;
+}
+
+.description-textarea::-webkit-scrollbar-thumb {
+    background: var(--button-color);
+    border-radius: 4px;
+    opacity: 0.8;
+}
+
+.description-textarea::-webkit-scrollbar-thumb:hover {
+    background: var(--button-hover-color);
+}
+
+.description-textarea:focus {
+    outline: none;
+    border-color: var(--button-color);
+}
+
+.description-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.description-actions button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.description-save {
+    background-color: var(--button-color);
+    color: white;
+}
+
+.description-save:hover {
+    background-color: var(--hover-color);
+}
+
+.description-cancel {
+    background-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.description-cancel:hover {
+    opacity: 0.8;
+}
+
+.task-text.completed + .timer-container .timer-btn {
+    opacity: 0.3;
+}
+
+.timer-btn {
+    padding: 6px 10px;
+    background-color: var(--button-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+ 

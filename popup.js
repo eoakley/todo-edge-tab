@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('author').textContent = '- Anônimo';
         });
 
+    // Adicionar event listener para atualizar tarefas quando a janela ganhar foco
+    window.addEventListener('focus', function() {
+        console.log('Popup ganhou foco - atualizando tarefas...');
+        loadTasks();
+    });
+
     // Inicializar relógio e data
     function updateDateTime() {
         const now = new Date();

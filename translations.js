@@ -26,7 +26,10 @@ const translations = {
                 hidden: 'Oculta'
             },
             save: 'Salvar',
-            cancel: 'Cancelar'
+            cancel: 'Cancelar',
+            close: 'Fechar',
+            default: 'Restaurar Padrões',
+            default_confirm: 'Tem certeza que deseja restaurar todas as configurações para os valores padrão?'
         },
         history: {
             title: 'Histórico de Tarefas',
@@ -80,7 +83,10 @@ const translations = {
                 hidden: 'Hidden'
             },
             save: 'Save',
-            cancel: 'Cancel'
+            cancel: 'Cancel',
+            close: 'Close',
+            default: 'Restore Defaults',
+            default_confirm: 'Are you sure you want to restore all settings to their default values?'
         },
         history: {
             title: 'Task History',

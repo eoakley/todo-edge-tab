@@ -827,22 +827,27 @@ h2 {
     transition: all 0.3s;
 }
 
-.settings-save {
-    background-color: var(--button-color);
-    color: white;
-}
-
-.settings-save:hover {
-    background-color: var(--hover-color);
-}
-
-.settings-cancel {
+.settings-close {
     background-color: var(--border-color);
     color: var(--text-color);
 }
 
-.settings-cancel:hover {
+.settings-close:hover {
     opacity: 0.8;
+}
+
+.settings-default {
+    background-color: var(--delete-color);
+    color: white;
+}
+
+.settings-default:hover {
+    background-color: var(--delete-hover);
+}
+
+/* Remove old button styles */
+.settings-save, .settings-cancel {
+    display: none;
 }
 
 /* Remove old theme toggle styles */

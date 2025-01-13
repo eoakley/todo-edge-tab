@@ -285,11 +285,20 @@ document.addEventListener('DOMContentLoaded', function() {
         $('.settings-modal').addClass('active');
     });
 
-    $('.settings-cancel').click(function() {
+    // Fechar modal ao clicar no botão fechar
+    $('.settings-close').click(function() {
         $('.settings-modal').removeClass('active');
     });
 
-    $('.settings-save').click(function() {
+    // Fechar modal ao clicar fora
+    $('.settings-modal').click(function(e) {
+        if ($(e.target).hasClass('settings-modal')) {
+            $(this).removeClass('active');
+        }
+    });
+
+    // Aplicar configurações instantaneamente quando mudarem
+    $('#newTaskPosition, #newSubtaskPosition, #themeSelect, #confettiEnabled, #searchBarEnabled, #timersEnabled, #language').change(function() {
         const newSettings = {
             newTaskPosition: $('#newTaskPosition').val(),
             newSubtaskPosition: $('#newSubtaskPosition').val(),
@@ -299,15 +308,13 @@ document.addEventListener('DOMContentLoaded', function() {
             timersEnabled: $('#timersEnabled').val() === 'true',
             language: $('#language').val()
         };
-        
         saveSettings(newSettings);
-        $('.settings-modal').removeClass('active');
     });
 
-    // Fechar modal ao clicar fora
-    $('.settings-modal').click(function(e) {
-        if ($(e.target).hasClass('settings-modal')) {
-            $(this).removeClass('active');
+    // Botão para restaurar configurações padrão
+    $('.settings-default').click(function() {
+        if (confirm(getTranslation('settings.default_confirm', settings.language))) {
+            saveSettings(defaultSettings);
         }
     });
 

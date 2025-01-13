@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         theme: 'dark',
         confettiEnabled: true,
         searchBarEnabled: true,
+        timersEnabled: true,
         language: 'pt-BR'
     };
 
@@ -237,12 +238,16 @@ document.addEventListener('DOMContentLoaded', function() {
         // Aplicar visibilidade da barra de pesquisa
         $('.search-container').toggle(settings.searchBarEnabled);
         
+        // Aplicar visibilidade dos timers
+        $('.timer-container').toggle(settings.timersEnabled);
+        
         // Atualizar valores no modal de configurações
         $('#newTaskPosition').val(settings.newTaskPosition);
         $('#newSubtaskPosition').val(settings.newSubtaskPosition);
         $('#themeSelect').val(settings.theme);
         $('#confettiEnabled').val(settings.confettiEnabled.toString());
         $('#searchBarEnabled').val(settings.searchBarEnabled.toString());
+        $('#timersEnabled').val(settings.timersEnabled.toString());
         $('#language').val(settings.language);
 
         // Atualizar traduções
@@ -278,6 +283,7 @@ document.addEventListener('DOMContentLoaded', function() {
             theme: $('#themeSelect').val(),
             confettiEnabled: $('#confettiEnabled').val() === 'true',
             searchBarEnabled: $('#searchBarEnabled').val() === 'true',
+            timersEnabled: $('#timersEnabled').val() === 'true',
             language: $('#language').val()
         };
         
@@ -468,6 +474,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const timerContainer = $('<div>')
             .addClass('timer-container')
+            .css('display', settings.timersEnabled ? '' : 'none')
             .append(
                 $('<button>')
                     .addClass('timer-btn toggle-timer')
@@ -999,6 +1006,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function showDeletionAnimation(e) {
         // Se as animações estiverem desativadas, não fazer nada
         if (!settings.confettiEnabled) return;
+
+        // Desabilita confetes no delete.
+        return;
 
         const colors = ["#ff4444", "#cc0000", "#d32f2f", "#b71c1c"];
         

@@ -6,6 +6,7 @@ const translations = {
             newSubtasksPosition: 'Novas subtarefas aparecem em',
             theme: 'Tema',
             confetti: 'Animação de confete',
+            timers: 'Timers',
             searchBar: 'Barra de pesquisa Google',
             language: 'Idioma',
             positions: {
@@ -57,6 +58,7 @@ const translations = {
             newSubtasksPosition: 'New subtasks appear at',
             theme: 'Theme',
             confetti: 'Confetti animation',
+            timers: 'Timers',
             searchBar: 'Google search bar',
             language: 'Language',
             positions: {

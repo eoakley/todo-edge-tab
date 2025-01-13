@@ -33,7 +33,9 @@ const translations = {
             close: 'Fechar',
             empty: 'Nenhuma tarefa concluída ainda',
             completed_at: 'Concluída em',
-            time_spent: 'Tempo gasto'
+            time_spent: 'Tempo gasto',
+            clear: 'Limpar Histórico',
+            clear_confirm: 'Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.'
         },
         task: {
             new_task: 'Digite uma nova tarefa...',
@@ -85,7 +87,9 @@ const translations = {
             close: 'Close',
             empty: 'No completed tasks yet',
             completed_at: 'Completed at',
-            time_spent: 'Time spent'
+            time_spent: 'Time spent',
+            clear: 'Clear History',
+            clear_confirm: 'Are you sure you want to clear all history? This action cannot be undone.'
         },
         task: {
             new_task: 'Type a new task...',

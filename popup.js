@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
         newSubtaskPosition: 'bottom',
         theme: 'dark',
         confettiEnabled: true,
-        searchBarEnabled: true,
+        searchBarEnabled: false,
         timersEnabled: true,
         language: 'pt-BR'
     };
@@ -118,6 +118,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     $('.history-close').click(function() {
         $('.history-modal').removeClass('active');
+    });
+
+    // Botão de limpar histórico
+    $('.history-clear').click(function() {
+        if (confirm(getTranslation('history.clear_confirm', settings.language))) {
+            chrome.storage.local.set({ taskHistory: [] }, function() {
+                if (chrome.runtime.lastError) {
+                    console.error('Erro ao limpar histórico:', chrome.runtime.lastError);
+                    return;
+                }
+                loadHistory(); // Recarrega o histórico vazio
+            });
+        }
     });
 
     // Fechar modal ao clicar fora

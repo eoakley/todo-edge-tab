@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function() {
         confettiEnabled: true,
         searchBarEnabled: false,
         timersEnabled: true,
+        showHolidays: true,
+        country: 'BR',
         language: 'pt-BR'
     };
 
@@ -19,7 +21,73 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         // Inicializar traduções após carregar configurações
         updateTranslations();
+        updateTooltips();
     });
+
+    // Função para atualizar tooltips
+    function updateTooltips() {
+        $('[data-tooltip]').each(function() {
+            const tooltipKey = $(this).attr('data-tooltip');
+            const tooltipText = getTranslation(tooltipKey, settings.language);
+            $(this).attr('title', tooltipText);
+        });
+    }
+
+    // Variáveis para controle das frases
+    let currentQuotes = [];
+    let currentQuoteIndex = -1;
+
+    // Função para carregar e exibir uma frase aleatória ou a próxima na sequência
+    function loadAndDisplayQuote(cycleToNext = false) {
+        fetch('frases.json')
+            .then(response => response.json())
+            .then(data => {
+                if (currentQuotes.length === 0) {
+                    currentQuotes = data.quotes;
+                    // Embaralhar as frases
+                    for (let i = currentQuotes.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [currentQuotes[i], currentQuotes[j]] = [currentQuotes[j], currentQuotes[i]];
+                    }
+                }
+
+                if (cycleToNext) {
+                    currentQuoteIndex = (currentQuoteIndex + 1) % currentQuotes.length;
+                } else if (currentQuoteIndex === -1) {
+                    currentQuoteIndex = 0;
+                }
+
+                const quote = currentQuotes[currentQuoteIndex];
+                
+                // Animar a transição
+                const quoteElement = document.getElementById('quote');
+                const authorElement = document.getElementById('author');
+                
+                quoteElement.style.opacity = '0';
+                authorElement.style.opacity = '0';
+                
+                setTimeout(() => {
+                    quoteElement.textContent = `"${quote.text}"`;
+                    authorElement.textContent = `- ${quote.author}`;
+                    
+                    quoteElement.style.opacity = '1';
+                    authorElement.style.opacity = '1';
+                }, 300);
+            })
+            .catch(error => {
+                console.error('Erro ao carregar as frases:', error);
+                document.getElementById('quote').textContent = getTranslation('quotes.fallback_quote', settings.language);
+                document.getElementById('author').textContent = `- ${getTranslation('quotes.fallback_author', settings.language)}`;
+            });
+    }
+
+    // Adicionar click handler para a frase
+    $('.quote-container').click(function() {
+        loadAndDisplayQuote(true);
+    });
+
+    // Carregar frase inicial
+    loadAndDisplayQuote();
 
     // Função para formatar tempo em HH:MM:SS
     function formatTime(seconds) {
@@ -261,10 +329,13 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#confettiEnabled').val(settings.confettiEnabled.toString());
         $('#searchBarEnabled').val(settings.searchBarEnabled.toString());
         $('#timersEnabled').val(settings.timersEnabled.toString());
+        $('#showHolidays').val(settings.showHolidays.toString());
+        $('#country').val(settings.country);
         $('#language').val(settings.language);
 
-        // Atualizar traduções
+        // Atualizar traduções e tooltips
         updateTranslations();
+        updateTooltips();
     }
 
     // Salvar configurações
@@ -298,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Aplicar configurações instantaneamente quando mudarem
-    $('#newTaskPosition, #newSubtaskPosition, #themeSelect, #confettiEnabled, #searchBarEnabled, #timersEnabled, #language').change(function() {
+    $('#newTaskPosition, #newSubtaskPosition, #themeSelect, #confettiEnabled, #searchBarEnabled, #timersEnabled, #showHolidays, #country, #language').change(function() {
         const newSettings = {
             newTaskPosition: $('#newTaskPosition').val(),
             newSubtaskPosition: $('#newSubtaskPosition').val(),
@@ -306,6 +377,8 @@ document.addEventListener('DOMContentLoaded', function() {
             confettiEnabled: $('#confettiEnabled').val() === 'true',
             searchBarEnabled: $('#searchBarEnabled').val() === 'true',
             timersEnabled: $('#timersEnabled').val() === 'true',
+            showHolidays: $('#showHolidays').val() === 'true',
+            country: $('#country').val(),
             language: $('#language').val()
         };
         saveSettings(newSettings);
@@ -317,23 +390,6 @@ document.addEventListener('DOMContentLoaded', function() {
             saveSettings(defaultSettings);
         }
     });
-
-    // Carregar e exibir uma frase aleatória
-    fetch('frases.json')
-        .then(response => response.json())
-        .then(data => {
-            const quotes = data.quotes;
-            const randomIndex = Math.floor(Math.random() * quotes.length);
-            const quote = quotes[randomIndex];
-            
-            document.getElementById('quote').textContent = `"${quote.text}"`;
-            document.getElementById('author').textContent = `- ${quote.author}`;
-        })
-        .catch(error => {
-            console.error('Erro ao carregar as frases:', error);
-            document.getElementById('quote').textContent = 'Faça hoje melhor do que ontem';
-            document.getElementById('author').textContent = '- Anônimo';
-        });
 
     // Adicionar event listener para atualizar tarefas quando a janela ganhar foco
     window.addEventListener('focus', function() {
@@ -364,6 +420,172 @@ document.addEventListener('DOMContentLoaded', function() {
     
     updateDateTime();
     setInterval(updateDateTime, 1000);
+
+    // Inicializar calendário
+    let currentDate = new Date();
+    let holidays = [];
+
+    // Toggle do calendário ao clicar no display de data/hora
+    $('#datetime-display').click(function() {
+        $('.calendar-widget').toggleClass('active');
+        if ($('.calendar-widget').hasClass('active')) {
+            updateCalendar();
+            fetchHolidays();
+        }
+    });
+
+    // Fechar calendário ao clicar fora
+    $(document).click(function(e) {
+        if (!$(e.target).closest('.calendar-widget').length && 
+            !$(e.target).closest('#datetime-display').length) {
+            $('.calendar-widget').removeClass('active');
+        }
+    });
+
+    // Navegação do calendário
+    $('.prev-month').click(function() {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        updateCalendar();
+        fetchHolidays();
+    });
+
+    $('.next-month').click(function() {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        updateCalendar();
+        fetchHolidays();
+    });
+
+    function updateCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        
+        // Atualizar cabeçalho do mês
+        const monthName = new Intl.DateTimeFormat(settings.language, { month: 'long', year: 'numeric' }).format(currentDate);
+        $('.current-month').text(monthName);
+        
+        // Atualizar dias da semana
+        const weekdays = [];
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(2024, 0, i + 1); // Usar uma data fixa para pegar os nomes dos dias
+            weekdays.push(new Intl.DateTimeFormat(settings.language, { weekday: 'short' }).format(date));
+        }
+        
+        const weekdaysContainer = $('.calendar-weekdays').empty();
+        weekdays.forEach(day => {
+            weekdaysContainer.append($('<span>').text(day));
+        });
+        
+        // Calcular dias do mês
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDay = firstDay.getDay();
+        
+        // Limpar e preencher grade de dias
+        const daysContainer = $('.calendar-days').empty();
+        
+        // Dias do mês anterior
+        const prevMonth = new Date(year, month, 0);
+        const daysInPrevMonth = prevMonth.getDate();
+        for (let i = startingDay - 1; i >= 0; i--) {
+            const dayDiv = $('<div>')
+                .addClass('calendar-day other-month')
+                .text(daysInPrevMonth - i);
+            daysContainer.append(dayDiv);
+        }
+        
+        // Dias do mês atual
+        const today = new Date();
+        for (let i = 1; i <= daysInMonth; i++) {
+            const dayDiv = $('<div>').addClass('calendar-day').text(i);
+            
+            // Marcar dia atual
+            if (year === today.getFullYear() && 
+                month === today.getMonth() && 
+                i === today.getDate()) {
+                dayDiv.addClass('today');
+            }
+            
+            // Marcar feriados
+            const currentDateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+            if (holidays.some(h => h.date === currentDateStr)) {
+                dayDiv.addClass('has-holiday');
+            }
+            
+            daysContainer.append(dayDiv);
+        }
+        
+        // Dias do próximo mês
+        const totalCells = 42; // 6 linhas x 7 dias
+        const remainingCells = totalCells - (startingDay + daysInMonth);
+        for (let i = 1; i <= remainingCells; i++) {
+            const dayDiv = $('<div>')
+                .addClass('calendar-day other-month')
+                .text(i);
+            daysContainer.append(dayDiv);
+        }
+    }
+
+    async function fetchHolidays() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth() + 1;
+        
+        try {
+            // Usar o país das configurações
+            const countryCode = settings.country;
+            
+            // Só buscar feriados se estiverem habilitados
+            if (!settings.showHolidays) {
+                $('.calendar-holidays').empty();
+                return;
+            }
+            
+            // Usando a API Nager.Date para feriados
+            const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/${countryCode}`);
+            if (!response.ok) throw new Error(`Erro ao buscar feriados para ${countryCode}`);
+            
+            const allHolidays = await response.json();
+            
+            // Filtrar feriados do mês atual
+            holidays = allHolidays.filter(h => {
+                const holidayDate = new Date(h.date);
+                return holidayDate.getMonth() + 1 === month;
+            });
+            
+            // Atualizar lista de feriados
+            const holidaysContainer = $('.calendar-holidays').empty();
+            
+            if (holidays.length === 0) {
+                holidaysContainer.append($('<div>')
+                    .addClass('holiday-item')
+                    .text(settings.language === 'pt-BR' ? 'Nenhum feriado este mês' : 'No holidays this month'));
+            } else {
+                holidays.forEach(holiday => {
+                    const date = new Date(holiday.date);
+                    const formattedDate = new Intl.DateTimeFormat(settings.language, {
+                        day: 'numeric',
+                        month: 'short'
+                    }).format(date);
+                    
+                    const holidayItem = $('<div>').addClass('holiday-item');
+                    holidayItem.append(
+                        $('<span>').text(settings.language === 'pt-BR' ? holiday.localName : holiday.name),
+                        $('<span>').addClass('holiday-date').text(formattedDate)
+                    );
+                    holidaysContainer.append(holidayItem);
+                });
+            }
+            
+            // Atualizar marcadores de feriado no calendário
+            updateCalendar();
+            
+        } catch (error) {
+            console.error('Erro ao buscar feriados:', error);
+            $('.calendar-holidays').html(
+                `<div class="holiday-item">${settings.language === 'pt-BR' ? 'Erro ao carregar feriados' : 'Error loading holidays'}</div>`
+            );
+        }
+    }
 
     // Inicializar tema
     initializeTheme();

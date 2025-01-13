@@ -14,6 +14,16 @@
             <div id="clock"></div>
             <div id="date"></div>
         </div>
+        <div id="calendar-widget" class="calendar-widget">
+            <div class="calendar-header">
+                <button class="calendar-nav prev-month"><i class="fas fa-chevron-left"></i></button>
+                <span class="current-month"></span>
+                <button class="calendar-nav next-month"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="calendar-weekdays"></div>
+            <div class="calendar-days"></div>
+            <div class="calendar-holidays"></div>
+        </div>
         <button id="settingsBtn" class="settings-btn">
             <i class="fas fa-cog"></i>
         </button>
@@ -65,7 +75,7 @@
         <div class="settings-content">
             <h3 data-i18n="settings.title">Configurações</h3>
             <div class="settings-group">
-                <label>
+                <label title="" data-tooltip="settings.newTasksPosition_tooltip">
                     <span data-i18n="settings.newTasksPosition">Novas tarefas aparecem em</span>
                     <select id="newTaskPosition">
                         <option value="top" data-i18n="settings.positions.top">Cima</option>
@@ -73,7 +83,7 @@
                     </select>
                 </label>
 
-                <label>
+                <label title="" data-tooltip="settings.newSubtasksPosition_tooltip">
                     <span data-i18n="settings.newSubtasksPosition">Novas subtarefas aparecem em</span>
                     <select id="newSubtaskPosition">
                         <option value="top" data-i18n="settings.positions.top">Cima</option>
@@ -81,7 +91,7 @@
                     </select>
                 </label>
 
-                <label>
+                <label title="" data-tooltip="settings.theme_tooltip">
                     <span data-i18n="settings.theme">Tema</span>
                     <select id="themeSelect">
                         <option value="light" data-i18n="settings.theme_options.light">Claro</option>
@@ -89,7 +99,7 @@
                     </select>
                 </label>
 
-                <label>
+                <label title="" data-tooltip="settings.confetti_tooltip">
                     <span data-i18n="settings.confetti">Animação de confete</span>
                     <select id="confettiEnabled">
                         <option value="true" data-i18n="settings.enabled_options.enabled">Ativada</option>
@@ -97,7 +107,7 @@
                     </select>
                 </label>
 
-                <label>
+                <label title="" data-tooltip="settings.timers_tooltip">
                     <span data-i18n="settings.timers">Timers</span>
                     <select id="timersEnabled">
                         <option value="true" data-i18n="settings.visibility_options.visible">Visível</option>
@@ -105,7 +115,7 @@
                     </select>
                 </label>
 
-                <label>
+                <label title="" data-tooltip="settings.searchBar_tooltip">
                     <span data-i18n="settings.searchBar">Barra de pesquisa Google</span>
                     <select id="searchBarEnabled">
                         <option value="true" data-i18n="settings.visibility_options.visible">Visível</option>
@@ -113,7 +123,23 @@
                     </select>
                 </label>
 
-                <label>
+                <label title="" data-tooltip="settings.showHolidays_tooltip">
+                    <span data-i18n="settings.showHolidays">Mostrar feriados</span>
+                    <select id="showHolidays">
+                        <option value="true" data-i18n="settings.enabled_options.enabled">Ativada</option>
+                        <option value="false" data-i18n="settings.enabled_options.disabled">Desativada</option>
+                    </select>
+                </label>
+
+                <label title="" data-tooltip="settings.country_tooltip">
+                    <span data-i18n="settings.country">País para feriados</span>
+                    <select id="country">
+                        <option value="BR" data-i18n="settings.country_options.BR">Brasil</option>
+                        <option value="US" data-i18n="settings.country_options.US">Estados Unidos</option>
+                    </select>
+                </label>
+
+                <label title="" data-tooltip="settings.language_tooltip">
                     <span data-i18n="settings.language">Idioma</span>
                     <select id="language">
                         <option value="pt-BR">Português (BR)</option>

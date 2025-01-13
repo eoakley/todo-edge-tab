@@ -49,8 +49,141 @@ body {
     position: relative;
 }
 
+.calendar-widget {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--container-bg);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 15px;
+    width: 300px;
+    display: none;
+    z-index: 1000;
+}
+
+.calendar-widget.active {
+    display: block;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-nav {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.calendar-nav:hover {
+    background-color: var(--border-color);
+}
+
+.current-month {
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.calendar-weekdays span {
+    font-size: 0.8em;
+    color: var(--text-color);
+    opacity: 0.7;
+    padding: 5px;
+}
+
+.calendar-days {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--text-color);
+    position: relative;
+    font-size: 0.9em;
+}
+
+.calendar-day:hover {
+    background-color: var(--border-color);
+}
+
+.calendar-day.today {
+    background-color: var(--button-color);
+    color: white;
+}
+
+.calendar-day.other-month {
+    opacity: 0.3;
+}
+
+.calendar-day.has-holiday {
+    color: var(--delete-color);
+}
+
+.calendar-day.has-holiday::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--delete-color);
+}
+
+.calendar-holidays {
+    margin-top: 15px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9em;
+    color: var(--text-color);
+    max-height: 100px;
+    overflow-y: auto;
+}
+
+.holiday-item {
+    padding: 5px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.holiday-date {
+    opacity: 0.7;
+    font-size: 0.9em;
+}
+
 #datetime-display {
     text-align: center;
+    cursor: pointer;
+}
+
+#datetime-display:hover {
+    opacity: 0.8;
 }
 
 #clock {
@@ -72,6 +205,12 @@ body {
     max-width: 800px;
     padding: 0 20px;
     margin: 20px 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.quote-container:hover {
+    opacity: 0.8;
 }
 
 .quote {
@@ -80,12 +219,14 @@ body {
     font-style: italic;
     line-height: 1.6;
     margin-bottom: 10px;
+    transition: opacity 0.3s ease;
 }
 
 .quote-author {
     font-size: 1.1rem;
     color: var(--text-color);
     opacity: 0.8;
+    transition: opacity 0.3s ease;
 }
 
 .search-container {
@@ -975,5 +1116,39 @@ h2 {
 
 .history-clear:hover {
     background-color: var(--delete-hover);
+}
+
+/* Settings tooltip styles */
+[data-tooltip] {
+    position: relative;
+}
+
+[data-tooltip]:hover::before {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    animation: fadeIn 0.2s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 10px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
 }
  

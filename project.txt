@@ -3,12 +3,5 @@ todo:
 
 changes pra release maybe?
 - opção de abrir o todo ao clicar no icone da extensao, nao abrir sempre com nova aba
-- swap idioma pt-br/us-eng
 - historico? task graveyard?
-- opções?
-    - novas tarefas aparecem em cima ou em baixo
-    - novas subtarefas aparecem em cima ou em baixo
-    - tema dark ou light
-    - confete animation on/off
-    - search bar do google on/off
-    - idioma pt-br/us-eng
+- auto detect idioma inicialmente?

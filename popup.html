@@ -17,6 +17,9 @@
         <button id="settingsBtn" class="settings-btn">
             <i class="fas fa-cog"></i>
         </button>
+        <button id="historyBtn" class="history-btn">
+            <i class="fas fa-history"></i>
+        </button>
     </div>
 
     <div class="quote-container">
@@ -116,5 +119,19 @@
             </div>
         </div>
     </div>
+
+    <div class="history-modal">
+        <div class="history-content">
+            <h3 data-i18n="history.title">Histórico de Tarefas</h3>
+            <div class="history-list">
+                <!-- Tasks will be added here dynamically -->
+            </div>
+            <div class="history-actions">
+                <button class="history-close" data-i18n="history.close">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="confetti.min.js"></script>
 </body>
 </html> 

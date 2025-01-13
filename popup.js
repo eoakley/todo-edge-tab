@@ -20,6 +20,170 @@ document.addEventListener('DOMContentLoaded', function() {
         updateTranslations();
     });
 
+    // Função para formatar tempo em HH:MM:SS
+    function formatTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const remainingSeconds = seconds % 60;
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    }
+
+    // Função para formatar data
+    function formatDate(date) {
+        return new Intl.DateTimeFormat(settings.language, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        }).format(date);
+    }
+
+    // Função para salvar tarefa no histórico
+    function saveToHistory(taskData) {
+        chrome.storage.local.get(['taskHistory'], function(result) {
+            const history = result.taskHistory || [];
+            const historyItem = {
+                text: taskData.text,
+                timeSpent: taskData.timeSpent || 0,
+                completedAt: new Date().toISOString(),
+                description: taskData.description || '',
+                subtasks: taskData.subtasks || []
+            };
+            
+            history.unshift(historyItem); // Adiciona no início do array
+            
+            // Limitar o histórico a 100 itens
+            if (history.length > 100) {
+                history.pop();
+            }
+            
+            chrome.storage.local.set({ taskHistory: history });
+        });
+    }
+
+    // Função para carregar e exibir o histórico
+    function loadHistory() {
+        chrome.storage.local.get(['taskHistory'], function(result) {
+            const history = result.taskHistory || [];
+            const historyList = $('.history-list');
+            historyList.empty();
+            
+            if (history.length === 0) {
+                historyList.append(`<div class="history-item">${getTranslation('history.empty', settings.language)}</div>`);
+                return;
+            }
+            
+            history.forEach(item => {
+                const completedDate = new Date(item.completedAt);
+                const historyItem = $('<div>').addClass('history-item');
+                
+                const header = $('<div>').addClass('history-item-header');
+                header.append($('<span>').addClass('history-item-title').text(item.text));
+                header.append($('<span>').addClass('history-item-date')
+                    .text(`${getTranslation('history.completed_at', settings.language)} ${formatDate(completedDate)}`));
+                
+                const timeSpent = $('<div>').addClass('history-item-time')
+                    .text(`${getTranslation('history.time_spent', settings.language)}: ${formatTime(item.timeSpent)}`);
+                
+                historyItem.append(header, timeSpent);
+                
+                // Adicionar descrição se existir
+                if (item.description) {
+                    const description = $('<div>').addClass('history-item-description')
+                        .text(item.description);
+                    historyItem.append(description);
+                }
+                
+                // Adicionar subtarefas se existirem
+                if (item.subtasks && item.subtasks.length > 0) {
+                    const subtasksList = $('<ul>').addClass('history-item-subtasks');
+                    item.subtasks.forEach(subtask => {
+                        subtasksList.append($('<li>').text(subtask.text));
+                    });
+                    historyItem.append(subtasksList);
+                }
+                
+                historyList.append(historyItem);
+            });
+        });
+    }
+
+    // Event listeners para o histórico
+    $('#historyBtn').click(function() {
+        loadHistory();
+        $('.history-modal').addClass('active');
+    });
+
+    $('.history-close').click(function() {
+        $('.history-modal').removeClass('active');
+    });
+
+    // Fechar modal ao clicar fora
+    $('.history-modal').click(function(e) {
+        if ($(e.target).hasClass('history-modal')) {
+            $(this).removeClass('active');
+        }
+    });
+
+    // Modificar a função de checkbox para salvar no histórico quando completar
+    function handleTaskCompletion(taskElement, isCompleted) {
+        const textSpan = taskElement.find('> .task-text');
+        textSpan.toggleClass('completed', isCompleted);
+
+        // Se for uma tarefa principal e estiver sendo marcada como completa
+        if (!taskElement.hasClass('subtask') && isCompleted) {
+            const taskData = {
+                text: textSpan.text(),
+                timeSpent: parseInt(taskElement.data('timeSpent')) || 0,
+                description: taskElement.data('description') || '',
+                subtasks: []
+            };
+
+            // Coletar subtarefas
+            taskElement.find('.subtask-list > .task-item').each(function() {
+                const $subtask = $(this);
+                taskData.subtasks.push({
+                    text: $subtask.find('.task-text').text(),
+                    completed: $subtask.find('.task-checkbox').prop('checked'),
+                    description: $subtask.data('description') || ''
+                });
+            });
+
+            // Salvar no histórico
+            saveToHistory(taskData);
+
+            // Pausar o timer se estiver ativo
+            const timerBtn = taskElement.find('.timer-btn.toggle-timer');
+            if (timerBtn.hasClass('active')) {
+                timerBtn.removeClass('active')
+                    .html('<i class="fas fa-play"></i>');
+                pauseTimer(taskElement);
+            }
+            showCompletionAnimation(event, parseInt(taskElement.data('timeSpent') || 0));
+        }
+
+        // Se for uma tarefa principal, atualizar todas as subtarefas
+        if (!taskElement.hasClass('subtask')) {
+            const subtasks = taskElement.find('.subtask-list .task-checkbox');
+            subtasks.prop('checked', isCompleted);
+            subtasks.each(function() {
+                $(this).closest('.task-item').find('.task-text').toggleClass('completed', isCompleted);
+            });
+        }
+
+        saveTasks();
+    }
+
+    // Modificar a criação do checkbox no createTaskElement
+    const checkbox = $('<input>')
+        .attr('type', 'checkbox')
+        .addClass('task-checkbox')
+        .click(function(e) {
+            const isCompleted = $(this).prop('checked');
+            handleTaskCompletion($(this).closest('.task-item'), isCompleted);
+        });
+
     // Função para atualizar traduções
     function updateTranslations() {
         const lang = settings.language;
@@ -269,29 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .addClass('task-checkbox')
             .click(function(e) {
                 const isCompleted = $(this).prop('checked');
-                textSpan.toggleClass('completed', isCompleted);
-
-                // Se for uma tarefa principal, atualizar todas as subtarefas
-                if (!isSubtask) {
-                    const subtasks = li.find('.subtask-list .task-checkbox');
-                    subtasks.prop('checked', isCompleted);
-                    subtasks.each(function() {
-                        $(this).closest('.task-item').find('.task-text').toggleClass('completed', isCompleted);
-                    });
-
-                    // Pausar o timer se estiver ativo
-                    if (isCompleted) {
-                        const timerBtn = li.find('.timer-btn.toggle-timer');
-                        if (timerBtn.hasClass('active')) {
-                            timerBtn.removeClass('active')
-                                .html('<i class="fas fa-play"></i>');
-                            pauseTimer(li);
-                        }
-                        showCompletionAnimation(e, parseInt(li.data('timeSpent') || 0));
-                    }
-                }
-
-                saveTasks();
+                handleTaskCompletion($(this).closest('.task-item'), isCompleted);
             });
 
         const textSpan = $('<span>')

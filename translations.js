@@ -27,6 +27,13 @@ const translations = {
             save: 'Salvar',
             cancel: 'Cancelar'
         },
+        history: {
+            title: 'Histórico de Tarefas',
+            close: 'Fechar',
+            empty: 'Nenhuma tarefa concluída ainda',
+            completed_at: 'Concluída em',
+            time_spent: 'Tempo gasto'
+        },
         task: {
             new_task: 'Digite uma nova tarefa...',
             new_subtask: 'Digite uma subtarefa...',
@@ -70,6 +77,13 @@ const translations = {
             },
             save: 'Save',
             cancel: 'Cancel'
+        },
+        history: {
+            title: 'Task History',
+            close: 'Close',
+            empty: 'No completed tasks yet',
+            completed_at: 'Completed at',
+            time_spent: 'Time spent'
         },
         task: {
             new_task: 'Type a new task...',

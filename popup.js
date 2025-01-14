@@ -368,6 +368,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Event listeners para o modal de ajuda
+    $('#helpBtn').click(function() {
+        $('.help-modal').addClass('active');
+    });
+
+    // Fechar modal de ajuda ao clicar no botão fechar
+    $('.help-close').click(function() {
+        $('.help-modal').removeClass('active');
+    });
+
+    // Fechar modal de ajuda ao clicar fora
+    $('.help-modal').click(function(e) {
+        if ($(e.target).hasClass('help-modal')) {
+            $(this).removeClass('active');
+        }
+    });
+
     // Aplicar configurações instantaneamente quando mudarem
     $('#newTaskPosition, #newSubtaskPosition, #themeSelect, #confettiEnabled, #searchBarEnabled, #timersEnabled, #showHolidays, #country, #language').change(function() {
         const newSettings = {

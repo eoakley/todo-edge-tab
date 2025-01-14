@@ -24,11 +24,14 @@
             <div class="calendar-days"></div>
             <div class="calendar-holidays"></div>
         </div>
-        <button id="settingsBtn" class="settings-btn">
+        <button id="settingsBtn" class="settings-btn" title="">
             <i class="fas fa-cog"></i>
         </button>
-        <button id="historyBtn" class="history-btn">
+        <button id="historyBtn" class="history-btn" title="">
             <i class="fas fa-history"></i>
+        </button>
+        <button id="helpBtn" class="help-btn" title="">
+            <i class="fas fa-question-circle"></i>
         </button>
     </div>
 
@@ -163,6 +166,47 @@
             <div class="history-actions">
                 <button class="history-clear" data-i18n="history.clear">Limpar Histórico</button>
                 <button class="history-close" data-i18n="history.close">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="help-modal">
+        <div class="help-content">
+            <h3 data-i18n="help.title">Dicas e Ajuda</h3>
+            <div class="help-sections">
+                <section>
+                    <h4 data-i18n="help.basic_features">Funcionalidades Básicas</h4>
+                    <ul>
+                        <li data-i18n="help.add_task">Adicione tarefas usando o campo de entrada principal</li>
+                        <li data-i18n="help.complete_task">Marque tarefas como concluídas clicando na caixa de seleção</li>
+                        <li data-i18n="help.delete_task">Exclua tarefas usando o botão de lixeira</li>
+                        <li data-i18n="help.add_subtask">Adicione subtarefas clicando no botão '+' em uma tarefa</li>
+                        <li data-i18n="help.edit_task">Edite o nome da tarefa ou subtarefa clicando sobre o texto</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h4 data-i18n="help.advanced_tips">Dicas Avançadas</h4>
+                    <ul>
+                        <li data-i18n="help.drag_reorder">Reorganize tarefas arrastando-as para cima ou para baixo</li>
+                        <li data-i18n="help.bulk_paste">Cole múltiplas tarefas pressionando Ctrl+V (uma por linha)</li>
+                        <li data-i18n="help.calendar_tip">Clique no relógio para exibir/ocultar o calendário</li>
+                        <li data-i18n="help.task_description">Adicione uma descrição detalhada clicando no ícone de nota ao lado da tarefa</li>
+                        <li data-i18n="help.timer_feature">Use o botão de timer para cronometrar suas tarefas</li>
+                        <li data-i18n="help.timer_edit">Clique no tempo do timer para editá-lo manualmente</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h4 data-i18n="help.customization">Personalização</h4>
+                    <ul>
+                        <li data-i18n="help.settings_tip">Acesse as configurações para personalizar temas, idiomas e comportamentos</li>
+                        <li data-i18n="help.history_tip">Visualize tarefas concluídas no histórico</li>
+                    </ul>
+                </section>
+            </div>
+            <div class="help-actions">
+                <button class="help-close" data-i18n="help.close">Fechar</button>
             </div>
         </div>
     </div>

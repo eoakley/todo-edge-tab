@@ -1,7 +1,29 @@
 const translations = {
     'pt-BR': {
+        help: {
+            title: 'Dicas e Ajuda',
+            tooltip: 'Mostrar dicas e ajuda',
+            basic_features: 'Funcionalidades Básicas',
+            advanced_tips: 'Dicas Avançadas',
+            customization: 'Personalização',
+            add_task: 'Adicione tarefas usando o campo de entrada principal',
+            complete_task: 'Marque tarefas como concluídas clicando na caixa de seleção',
+            delete_task: 'Exclua tarefas usando o botão de lixeira',
+            add_subtask: 'Adicione subtarefas clicando no botão \'+\' em uma tarefa',
+            drag_reorder: 'Reorganize tarefas arrastando-as para cima ou para baixo',
+            bulk_paste: 'Cole múltiplas tarefas pressionando Ctrl+V (uma por linha)',
+            calendar_tip: 'Clique no relógio para exibir/ocultar o calendário',
+            task_description: 'Adicione uma descrição detalhada clicando no ícone de nota ao lado da tarefa',
+            timer_feature: 'Use o botão de timer para cronometrar suas tarefas',
+            timer_edit: 'Clique no tempo do timer para editá-lo manualmente',
+            edit_task: 'Edite o nome da tarefa ou subtarefa clicando sobre o texto',
+            settings_tip: 'Acesse as configurações para personalizar temas, idiomas e comportamentos',
+            history_tip: 'Visualize tarefas concluídas no histórico',
+            close: 'Fechar'
+        },
         settings: {
             title: 'Configurações',
+            tooltip: 'Abrir configurações',
             newTasksPosition: 'Novas tarefas aparecem em',
             newTasksPosition_tooltip: 'Define onde as novas tarefas principais serão adicionadas na lista',
             newSubtasksPosition: 'Novas subtarefas aparecem em',
@@ -48,6 +70,7 @@ const translations = {
         },
         history: {
             title: 'Histórico de Tarefas',
+            tooltip: 'Ver histórico de tarefas concluídas',
             close: 'Fechar',
             empty: 'Nenhuma tarefa concluída ainda',
             completed_at: 'Concluída em',
@@ -72,8 +95,30 @@ const translations = {
         }
     },
     'en-US': {
+        help: {
+            title: 'Tips and Help',
+            tooltip: 'Show tips and help',
+            basic_features: 'Basic Features',
+            advanced_tips: 'Advanced Tips',
+            customization: 'Customization',
+            add_task: 'Add tasks using the main input field',
+            complete_task: 'Mark tasks as completed by clicking the checkbox',
+            delete_task: 'Delete tasks using the trash button',
+            add_subtask: 'Add subtasks by clicking the \'+\' button on a task',
+            drag_reorder: 'Reorder tasks by dragging them up or down',
+            bulk_paste: 'Paste multiple tasks by pressing Ctrl+V (one per line)',
+            calendar_tip: 'Click the clock to show/hide the calendar',
+            task_description: 'Add a detailed description by clicking the note icon next to the task',
+            timer_feature: 'Use the timer button to track time spent on tasks',
+            timer_edit: 'Click on the timer time to edit it manually',
+            edit_task: 'Edit task or subtask name by clicking on the text',
+            settings_tip: 'Access settings to customize themes, languages, and behaviors',
+            history_tip: 'View completed tasks in the history',
+            close: 'Close'
+        },
         settings: {
             title: 'Settings',
+            tooltip: 'Open settings',
             newTasksPosition: 'New tasks appear at',
             newTasksPosition_tooltip: 'Defines where new main tasks will be added to the list',
             newSubtasksPosition: 'New subtasks appear at',
@@ -120,6 +165,7 @@ const translations = {
         },
         history: {
             title: 'Task History',
+            tooltip: 'View completed tasks history',
             close: 'Close',
             empty: 'No completed tasks yet',
             completed_at: 'Completed at',

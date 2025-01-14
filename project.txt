@@ -1,5 +1,5 @@
 todo:
-- 
+- mouseover botoes menu
 
 changes pra release maybe?
 - opção de abrir o todo ao clicar no icone da extensao, nao abrir sempre com nova aba

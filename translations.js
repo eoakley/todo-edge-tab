@@ -34,8 +34,6 @@ const translations = {
             confetti_tooltip: 'Ativa ou desativa a animação de confete ao completar tarefas',
             timers: 'Timers',
             timers_tooltip: 'Mostra ou oculta os cronômetros para acompanhar o tempo gasto em cada tarefa',
-            searchBar: 'Barra de pesquisa Google',
-            searchBar_tooltip: 'Mostra ou oculta a barra de pesquisa rápida do Google',
             showHolidays: 'Mostrar feriados',
             showHolidays_tooltip: 'Exibe ou oculta os feriados no calendário',
             country: 'País para feriados',
@@ -86,9 +84,6 @@ const translations = {
             description_placeholder: 'Digite uma descrição para esta tarefa...',
             add_subtask: 'Nova subtarefa'
         },
-        search: {
-            placeholder: 'Pesquisar no Google...'
-        },
         quotes: {
             fallback_quote: 'Faça hoje melhor do que ontem',
             fallback_author: 'Anônimo'
@@ -129,8 +124,6 @@ const translations = {
             confetti_tooltip: 'Enable or disable the confetti animation when completing tasks',
             timers: 'Timers',
             timers_tooltip: 'Show or hide timers to track time spent on each task',
-            searchBar: 'Google search bar',
-            searchBar_tooltip: 'Show or hide the quick Google search bar',
             showHolidays: 'Show holidays',
             showHolidays_tooltip: 'Show or hide holidays in the calendar',
             country: 'Country for holidays',
@@ -180,9 +173,6 @@ const translations = {
             description: 'Task Description',
             description_placeholder: 'Type a description for this task...',
             add_subtask: 'New subtask'
-        },
-        search: {
-            placeholder: 'Search Google...'
         },
         quotes: {
             fallback_quote: 'Do better today than yesterday',

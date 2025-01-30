@@ -230,49 +230,6 @@ body {
     transition: opacity 0.3s ease;
 }
 
-.search-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 20px auto;
-}
-
-.search-container form {
-    display: flex;
-    gap: 10px;
-}
-
-.search-input {
-    flex: 1;
-    padding: 18px 25px;
-    font-size: 1.3rem;
-    border: 2px solid var(--border-color);
-    border-radius: 30px;
-    background-color: var(--container-bg);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-}
-
-.search-input:focus {
-    outline: none;
-    border-color: var(--button-color);
-    box-shadow: 0 0 10px rgba(76, 175, 80, 0.2);
-}
-
-.search-button {
-    padding: 18px 30px;
-    background-color: var(--button-color);
-    color: white;
-    border: none;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    font-size: 1.2rem;
-}
-
-.search-button:hover {
-    background-color: var(--hover-color);
-}
-
 .tasks-container {
     width: 640px;
     background-color: var(--container-bg);

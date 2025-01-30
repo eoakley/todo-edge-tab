@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
         newSubtaskPosition: 'bottom',
         theme: 'dark',
         confettiEnabled: true,
-        searchBarEnabled: false,
         timersEnabled: true,
         showHolidays: true,
         country: 'BR',
@@ -316,9 +315,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Aplicar tema
         $('html').attr('data-theme', settings.theme);
         
-        // Aplicar visibilidade da barra de pesquisa
-        $('.search-container').toggle(settings.searchBarEnabled);
-        
         // Aplicar visibilidade dos timers
         $('.timer-container').toggle(settings.timersEnabled);
         
@@ -327,7 +323,6 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#newSubtaskPosition').val(settings.newSubtaskPosition);
         $('#themeSelect').val(settings.theme);
         $('#confettiEnabled').val(settings.confettiEnabled.toString());
-        $('#searchBarEnabled').val(settings.searchBarEnabled.toString());
         $('#timersEnabled').val(settings.timersEnabled.toString());
         $('#showHolidays').val(settings.showHolidays.toString());
         $('#country').val(settings.country);
@@ -386,13 +381,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Aplicar configurações instantaneamente quando mudarem
-    $('#newTaskPosition, #newSubtaskPosition, #themeSelect, #confettiEnabled, #searchBarEnabled, #timersEnabled, #showHolidays, #country, #language').change(function() {
+    $('#newTaskPosition, #newSubtaskPosition, #themeSelect, #confettiEnabled, #timersEnabled, #showHolidays, #country, #language').change(function() {
         const newSettings = {
             newTaskPosition: $('#newTaskPosition').val(),
             newSubtaskPosition: $('#newSubtaskPosition').val(),
             theme: $('#themeSelect').val(),
             confettiEnabled: $('#confettiEnabled').val() === 'true',
-            searchBarEnabled: $('#searchBarEnabled').val() === 'true',
             timersEnabled: $('#timersEnabled').val() === 'true',
             showHolidays: $('#showHolidays').val() === 'true',
             country: $('#country').val(),

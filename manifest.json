@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "FlowTask",
     "version": "1.0",
-    "description": "Master your workflow in every Chrome tab! A sleek todo list with subtask support, built-in timers, and drag-and-drop tasks. Celebrate wins with confetti—now in light/dark themes and two languages!",
+    "description": "A sleek todo list with subtask support, built-in timers, and drag-and-drop tasks. Light/dark themes and two languages!",
     "chrome_url_overrides": {
         "newtab": "popup.html"
     },

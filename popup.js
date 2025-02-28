@@ -11,6 +11,15 @@ document.addEventListener('DOMContentLoaded', function() {
         language: 'pt-BR'
     };
 
+    // Estado da sessão para preservar entre tabs
+    let sessionState = {
+        expandedTasks: [],
+        focusedElementId: null,
+        cursorPosition: 0,
+        lastDescriptionTaskId: null,
+        parentTaskId: null
+    };
+
     // Carregar configurações
     let settings = { ...defaultSettings };
     chrome.storage.local.get(['settings'], function(result) {
@@ -607,6 +616,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-focus no input
     $('#taskInput').focus();
 
+    // Adicionar focus handler para o input principal
+    $('#taskInput').on('focus', function() {
+        // Salvar o estado do foco quando o input principal recebe foco
+        setTimeout(saveSessionState, 50);
+    });
+
     // Adicionar tarefa quando o botão for clicado
     $('#addTask').click(addTask);
 
@@ -669,6 +684,9 @@ document.addEventListener('DOMContentLoaded', function() {
             
             taskInput.val('').focus();
             saveTasks();
+            
+            // Salvar o estado da sessão após adicionar uma tarefa
+            setTimeout(saveSessionState, 100);
         }
     }
 
@@ -676,6 +694,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const li = $('<li>')
             .addClass('task-item')
             .attr('draggable', true)
+            .attr('id', generateTaskId())
             .on('dragstart', handleDragStart)
             .on('dragend', handleDragEnd)
             .on('dragover', handleDragOver)
@@ -706,6 +725,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const input = $('<input>')
                     .attr('type', 'text')
                     .addClass('task-input')
+                    .attr('id', 'edit-' + $(this).closest('.task-item').attr('id'))
                     .val(currentText)
                     .blur(function() {
                         const newText = $(this).val().trim();
@@ -720,9 +740,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (e.which === 13) {
                             $(this).blur();
                         }
+                    })
+                    .on('focus', function() {
+                        // Salvar o estado do foco quando o input de edição recebe foco
+                        setTimeout(saveSessionState, 50);
                     });
                 $(this).html(input);
                 input.focus();
+                
+                // Salvar o estado do foco após aplicar o foco
+                setTimeout(saveSessionState, 100);
             });
 
         const timerContainer = $('<div>')
@@ -781,6 +808,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         const input = $('<input>')
                             .attr('type', 'text')
                             .addClass('timer-input')
+                            .attr('id', 'timer-input-' + $(this).closest('.task-item').attr('id'))
                             .val(currentDisplay)
                             .on('input', function(e) {
                                 let value = e.target.value.replace(/[^\d:]/g, '');
@@ -823,6 +851,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                 if (e.which === 13) {
                                     $(this).blur();
                                 }
+                            })
+                            .on('focus', function() {
+                                // Salvar o estado do foco quando o input do timer recebe foco
+                                setTimeout(saveSessionState, 50);
                             });
                         $(this).html(input);
                         input.focus();
@@ -870,8 +902,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 .addClass('expand-btn')
                 .html('<i class="fas fa-chevron-right"></i>')
                 .click(function() {
-                    $(this).toggleClass('expanded');
-                    subtasksContainer.toggleClass('expanded');
+                    // Verifica o estado atual antes de alterá-lo
+                    const isCurrentlyExpanded = $(this).hasClass('expanded');
+                    
+                    // Alterna a classe com base no estado atual
+                    $(this).toggleClass('expanded', !isCurrentlyExpanded);
+                    subtasksContainer.toggleClass('expanded', !isCurrentlyExpanded);
+                    
+                    // Salvar o estado da sessão quando uma tarefa é expandida/recolhida
+                    saveSessionState();
                 });
 
             // Criar container de subtarefas
@@ -925,13 +964,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     const subtaskInput = $('<input>')
                         .attr('type', 'text')
                         .attr('placeholder', getTranslation('task.new_subtask', settings.language))
+                        .attr('id', 'subtask-input-' + $(this).closest('.task-item').attr('id'))
                         .addClass('subtask-input')
                         .keypress(function(e) {
                             if (e.which == 13) {
-                                addSubtask($(this));
+                                addSubtask(subtaskInput);
                                 // Manter o input e focar nele
                                 $(this).val('').focus();
+                                // Salvar o estado do foco após aplicar o foco
+                                setTimeout(saveSessionState, 100);
                             }
+                        })
+                        .on('focus', function() {
+                            // Salvar o estado do foco quando o input recebe foco
+                            setTimeout(saveSessionState, 50);
                         });
                     const addButton = $('<button>')
                         .text('Adicionar')
@@ -939,6 +985,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             addSubtask(subtaskInput);
                             // Manter o input e focar nele
                             subtaskInput.val('').focus();
+                            // Salvar o estado do foco após aplicar o foco
+                            setTimeout(saveSessionState, 100);
                         });
                     
                     inputContainer.append(subtaskInput, addButton);
@@ -1093,21 +1141,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 timeSpent: parseInt($task.data('timeSpent')) || 0,
                 timerStartTime: $task.find('.timer-btn').hasClass('active') ? $task.data('timerStartTime') : null,
                 description: $task.data('description') || '',
-                subtasks: []
+                subtasks: [],
+                id: $task.attr('id') || generateTaskId(),
+                expanded: $task.find('> .subtasks-container').hasClass('expanded')
             };
+
+            // Garante que cada tarefa tenha um ID
+            if (!$task.attr('id')) {
+                $task.attr('id', taskData.id);
+            }
 
             // Save subtasks
             $task.find('.subtask-list > .task-item').each(function() {
                 const $subtask = $(this);
+                const subtaskId = $subtask.attr('id') || generateTaskId();
+                
+                // Garante que cada subtarefa tenha um ID
+                if (!$subtask.attr('id')) {
+                    $subtask.attr('id', subtaskId);
+                }
+                
                 taskData.subtasks.push({
                     text: $subtask.find('.task-text').text(),
                     completed: $subtask.find('.task-checkbox').prop('checked'),
-                    description: $subtask.data('description') || ''
+                    description: $subtask.data('description') || '',
+                    id: subtaskId
                 });
             });
 
             tasks.push(taskData);
         });
+
+        // Salvar o estado da sessão atual
+        saveSessionState();
 
         // Save to Chrome storage
         chrome.storage.local.set({ tasks: tasks }, function() {
@@ -1124,6 +1190,91 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Gera um ID único para uma tarefa
+    function generateTaskId() {
+        return 'task-' + Date.now() + '-' + Math.floor(Math.random() * 10000);
+    }
+
+    // Salva o estado atual da sessão (tarefas expandidas e cursor)
+    function saveSessionState() {
+        // Captura todas as tarefas expandidas
+        sessionState.expandedTasks = [];
+        $('.task-item > .subtasks-container.expanded').each(function() {
+            const taskId = $(this).closest('.task-item').attr('id');
+            if (taskId) {
+                sessionState.expandedTasks.push(taskId);
+            }
+        });
+
+        // Captura o elemento atualmente em foco e a posição do cursor
+        const activeElement = document.activeElement;
+        if (activeElement) {
+            sessionState.focusedElementId = activeElement.id || null;
+            
+            // Se for um input de texto, salva a posição do cursor
+            if (activeElement.tagName === 'INPUT' && activeElement.type === 'text') {
+                sessionState.cursorPosition = activeElement.selectionStart || 0;
+            }
+            
+            // Se for um input de subtarefa, também salva o ID da tarefa pai
+            if (activeElement.id && activeElement.id.startsWith('subtask-input-')) {
+                sessionState.parentTaskId = activeElement.id.replace('subtask-input-', '');
+            } else {
+                sessionState.parentTaskId = null;
+            }
+        }
+
+        // Salva na storage local
+        chrome.storage.local.set({ sessionState: sessionState });
+    }
+
+    // Restaura o estado da sessão (tarefas expandidas e cursor)
+    function restoreSessionState() {
+        chrome.storage.local.get(['sessionState'], function(result) {
+            if (result.sessionState) {
+                sessionState = result.sessionState;
+                
+                // Restaura tarefas expandidas
+                if (sessionState.expandedTasks && sessionState.expandedTasks.length > 0) {
+                    sessionState.expandedTasks.forEach(taskId => {
+                        const taskItem = $(`#${taskId}`);
+                        if (taskItem.length) {
+                            const expandBtn = taskItem.find('> .expand-btn');
+                            const subtasksContainer = taskItem.find('> .subtasks-container');
+                            expandBtn.addClass('expanded');
+                            subtasksContainer.addClass('expanded');
+                        }
+                    });
+                }
+                
+                // Restaura o foco e a posição do cursor
+                if (sessionState.focusedElementId) {
+                    const element = document.getElementById(sessionState.focusedElementId);
+                    if (element) {
+                        setTimeout(() => {
+                            element.focus();
+                            
+                            // Se for um input de texto, restaura a posição do cursor
+                            if (element.tagName === 'INPUT' && element.type === 'text' && sessionState.cursorPosition !== undefined) {
+                                element.setSelectionRange(sessionState.cursorPosition, sessionState.cursorPosition);
+                            }
+                        }, 100);
+                    }
+                }
+                // Verifica se havia uma descrição sendo editada
+                else if (sessionState.lastDescriptionTaskId) {
+                    const taskItem = $(`#${sessionState.lastDescriptionTaskId}`);
+                    if (taskItem.length) {
+                        // Simula o clique no botão de descrição para abrir o modal
+                        setTimeout(() => {
+                            taskItem.find('.description-btn').click();
+                        }, 100);
+                    }
+                }
+            }
+        });
+    }
+
     function loadTasks() {
         chrome.storage.local.get(['tasks'], function(result) {
             if (chrome.runtime.lastError) {
@@ -1135,6 +1286,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 $('#taskList').empty();
                 result.tasks.forEach(taskData => {
                     const taskItem = createTaskElement(taskData.text);
+                    
+                    // Atribui o ID salvo da tarefa
+                    if (taskData.id) {
+                        taskItem.attr('id', taskData.id);
+                    }
                     
                     // Restore task state
                     if (taskData.completed) {
@@ -1173,6 +1329,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         const subtaskList = taskItem.find('.subtask-list');
                         taskData.subtasks.forEach(subtaskData => {
                             const subtask = createTaskElement(subtaskData.text, true);
+                            
+                            // Atribui o ID salvo da subtarefa
+                            if (subtaskData.id) {
+                                subtask.attr('id', subtaskData.id);
+                            }
+                            
                             if (subtaskData.completed) {
                                 subtask.find('.task-checkbox').prop('checked', true);
                                 subtask.find('.task-text').addClass('completed');
@@ -1187,6 +1349,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     $('#taskList').append(taskItem);
                 });
+                
+                // Depois de carregar as tarefas, restaura o estado da sessão
+                restoreSessionState();
             }
         });
     }
@@ -1373,10 +1538,33 @@ document.addEventListener('DOMContentLoaded', function() {
         modal.removeClass('active');
     });
 
+    // Adicionar focus handler para a textarea de descrição
+    $('.description-textarea').on('focus', function() {
+        // Salvar o estado do foco quando a textarea recebe foco
+        // Não podemos usar sessionState diretamente pois a textarea não tem ID fixo
+        // Mas podemos salvar uma referência ao elemento atual
+        const currentTask = $('.description-modal').data('currentTask');
+        if (currentTask && currentTask.attr('id')) {
+            sessionState.lastDescriptionTaskId = currentTask.attr('id');
+            saveSessionState();
+        }
+    });
+
     // Fechar modal ao clicar fora
     $('.description-modal').click(function(e) {
         if ($(e.target).hasClass('description-modal')) {
             $(this).removeClass('active');
+        }
+    });
+
+    // Adicionar listener para o evento de visibilidade da página
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            // A extensão está sendo minimizada, salvar o estado
+            saveSessionState();
+        } else {
+            // A extensão está sendo restaurada, carregar o estado
+            restoreSessionState();
         }
     });
 }); 
